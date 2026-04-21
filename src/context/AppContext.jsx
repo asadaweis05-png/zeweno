@@ -133,6 +133,10 @@ export function AppProvider({ children }) {
     setSavedContent(prev => prev.filter(c => c.id !== id));
   }, []);
 
+  const updateContent = useCallback((id, updates) => {
+    setSavedContent(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
+  }, []);
+
   const addNote = useCallback((note) => {
     setNotes(prev => [{ ...note, id: generateId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, ...prev]);
   }, []);
@@ -169,7 +173,7 @@ export function AppProvider({ children }) {
     gutScores, updateGutScore, todayGutScores,
     steps, logSteps, todaySteps,
     vitaminLog, toggleVitamin, todayVitamins,
-    savedContent, addContent, removeContent,
+    savedContent, addContent, removeContent, updateContent,
     notes, addNote, updateNote, deleteNote,
     flashDecks, addFlashDeck, updateFlashDeck, deleteFlashDeck,
     mealPlans, addMealPlan,

@@ -76,7 +76,12 @@ h1, h2, h3, h4, .font-heading {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
   letter-spacing: -0.02em;
+  overflow-wrap: break-word;
 }
+
+h1 { font-size: clamp(2rem, 8vw, 3.5rem); }
+h2 { font-size: clamp(1.5rem, 6vw, 2.5rem); }
+h3 { font-size: clamp(1.25rem, 5vw, 1.75rem); }
 
 a {
   text-decoration: none;
@@ -106,16 +111,20 @@ button {
 
 .main-content {
   flex: 1;
-  margin-left: 280px;
+  margin-left: var(--sidebar-width);
   padding: 2.5rem;
   width: 100%;
   position: relative;
   z-index: 1;
   max-width: 1600px;
+  transition: margin-left 0.3s ease;
 }
 
 @media (max-width: 1024px) {
-  .main-content { padding: 2rem; }
+  .main-content { 
+    margin-left: 0;
+    padding: 2rem; 
+  }
 }
 
 @media (max-width: 768px) {
@@ -203,8 +212,11 @@ button {
   color: var(--accent);
 }
 
-@media (max-width: 768px) {
-  .sidebar { display: none; }
+@media (max-width: 1024px) {
+  .sidebar { 
+    transform: translateX(-100%);
+    display: none; 
+  }
 }
 
 .sidebar {
@@ -348,8 +360,8 @@ button {
 .text-secondary { color: var(--text-secondary); }
 .text-muted { color: var(--text-muted); }
 
-.page-header { margin-bottom: 3.5rem; }
-.page-header h1 { font-size: 3rem; margin-bottom: 0.5rem; }
+.page-header { margin-bottom: 2.5rem; }
+.page-header h1 { margin-bottom: 0.5rem; }
 .page-header-actions {
   display: flex;
   justify-content: space-between;
@@ -360,8 +372,8 @@ button {
 }
 
 @media (max-width: 768px) {
-  .page-header h1 { font-size: 2.25rem; }
-  .page-header-actions { flex-direction: column; align-items: flex-start; }
+  .page-header { margin-bottom: 2rem; }
+  .page-header-actions { flex-direction: column; align-items: flex-start; gap: 1rem; }
 }
 
 /* Buttons */
@@ -632,147 +644,121 @@ button {
 .mt-xl { margin-top: 3rem; }
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
 
-/* Marketplace UI Redesign */
 .marketplace-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
-  padding-bottom: 2rem;
+  gap: 4rem;
 }
 
-/* Hero Banner */
 .marketplace-hero {
   position: relative;
   border-radius: var(--radius-xl);
-  padding: 3rem;
+  padding: 4rem;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 280px;
-  background: #ffffff;
+  min-height: 480px;
+  background: white;
   border: 1px solid var(--card-border);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.05);
 }
 
-.marketplace-hero::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: var(--gradient-primary);
-  opacity: 0.05;
-  z-index: 0;
+.hero-title {
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  line-height: 1.05;
+  margin-bottom: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
 }
 
-.marketplace-hero-content {
-  position: relative;
-  z-index: 1;
-  max-width: 600px;
-}
-
-.marketplace-hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-full);
-  background: var(--accent);
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-  letter-spacing: 0.05em;
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
-}
-
-.marketplace-hero h2 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-}
-
-.marketplace-hero p {
-  font-size: 1.125rem;
+.hero-desc {
+  font-size: clamp(1rem, 3vw, 1.25rem);
   color: var(--text-secondary);
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
+  max-width: 600px;
   line-height: 1.6;
 }
 
-.marketplace-hero-img {
-  position: absolute;
-  right: -5%;
-  bottom: -20%;
-  width: 50%;
-  max-width: 400px;
-  height: auto;
-  opacity: 0.9;
-  filter: drop-shadow(0 20px 30px rgba(0,0,0,0.1));
-  z-index: 0;
-  pointer-events: none;
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
+
+.bubble-top { top: 10%; right: 5%; }
+.bubble-bottom { bottom: 20%; right: 15%; width: 400px; height: 400px; }
 
 @media (max-width: 768px) {
-  .marketplace-hero { padding: 2rem; min-height: auto; }
-  .marketplace-hero h2 { font-size: 2.25rem; }
-  .marketplace-hero p { font-size: 1rem; margin-bottom: 1.5rem; }
-  .marketplace-hero-img { display: none; }
+  .marketplace-container { padding: 1.5rem 1.25rem; gap: 3rem; }
+  .marketplace-hero { 
+    padding: 2.5rem 1.5rem; 
+    min-height: auto; 
+    text-align: center;
+    align-items: center;
+  }
+  .hero-actions { 
+    flex-direction: column; 
+    width: 100%;
+    gap: 0.75rem;
+  }
+  .hero-actions .btn { width: 100%; }
+  .floating-bubble { display: none; }
 }
 
-/* Category Sections */
 .marketplace-section {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .marketplace-section-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  border-bottom: 1px solid var(--card-border);
-  padding-bottom: 1rem;
-}
-
-.marketplace-section-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-main);
-  display: flex;
   align-items: center;
-  gap: 0.75rem;
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 1.25rem;
 }
 
-.marketplace-section-title svg {
-  color: var(--accent);
-}
-
-/* App Grid & Cards */
-.app-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-}
+.section-subtitle { font-size: 0.85rem; font-weight: 500; }
 
 .app-card {
   display: flex;
-  align-items: flex-start;
-  gap: 1.25rem;
-  background: var(--card-bg);
+  align-items: center;
+  gap: 1.5rem;
+  background: white;
   border: 1px solid var(--card-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   padding: 1.5rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
 }
 
 .app-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
-  border-color: rgba(37, 99, 235, 0.2);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.15);
+  border-color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .app-grid { grid-template-columns: 1fr; }
+  .app-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    gap: 1rem;
+  }
+  .app-actions {
+    width: 100%;
+    margin-left: 0;
+    align-items: center;
+    border-top: 1px solid var(--bg-deep);
+    padding-top: 1.5rem;
+    margin-top: 1rem;
+  }
 }
 
 .app-icon {
@@ -966,9 +952,11 @@ button {
   gap: 1rem;
 }
 
-.modal-footer {
-  margin-top: 2rem;
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
+.marketplace-footer {
+  margin-top: 4rem;
+  text-align: center;
+  padding: 5rem 0;
+  border-top: 1px solid var(--card-border);
 }
+
+.footer-logo { font-size: 1.75rem; margin-bottom: 1rem; }

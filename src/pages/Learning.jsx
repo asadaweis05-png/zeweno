@@ -7,7 +7,7 @@ import {
 import Modal from '../components/common/Modal';
 
 export default function Learning() {
-  const { savedContent, addContent, removeContent, apiKey } = useApp();
+  const { savedContent, addContent, removeContent, updateContent, apiKey } = useApp();
   const [showAdd, setShowAdd] = useState(false);
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
@@ -59,14 +59,7 @@ export default function Learning() {
       const data = await res.json();
       const summary = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Unable to generate summary.';
 
-      // Update the content item with summary
-      const updated = savedContent.map(c =>
-        c.id === item.id ? { ...c, summary } : c
-      );
-      // Direct state update through context isn't available, so we'll use a workaround
-      // We'll store the summary locally
-      item.summary = summary;
-      // Force re-render
+      updateContent(item.id, { summary });
       setSummarizing(null);
     } catch (err) {
       console.error(err);

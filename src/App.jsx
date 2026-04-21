@@ -10,6 +10,7 @@ import Learning from './pages/Learning';
 import Notes from './pages/Notes';
 import FlashCards from './pages/FlashCards';
 import DietAI from './pages/DietAI';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   return (
@@ -28,6 +29,8 @@ export default function App() {
             <Route path="flashcards" element={<FlashCards />} />
             <Route path="diet-ai" element={<DietAI />} />
           </Route>
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AppProvider>

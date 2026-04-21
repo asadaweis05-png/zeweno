@@ -60,23 +60,23 @@ export default function Marketplace() {
 
   return (
     <div className="animate-fade-in marketplace-root section-full-width">
-      <div className="marketplace-container" style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
+      <div className="marketplace-container">
         
         {/* Global Hero */}
-        <div className="marketplace-hero global-hero" style={{ minHeight: '400px', background: 'var(--bg-deep)', marginBottom: '4rem' }}>
+        <div className="marketplace-hero global-hero">
           <div className="marketplace-hero-content">
             <div className="marketplace-hero-badge">
               <Zap size={14} /> 
               Goobta Shaqada ee Mustaqbalka
             </div>
-            <h1 style={{ fontSize: '4rem', marginBottom: '1.5rem', fontWeight: 800 }}>
+            <h1 className="hero-title">
               Mustaqbalka <span className="text-gradient">Software-ka Shakhsi ahaaneed</span>
             </h1>
-            <p style={{ fontSize: '1.25rem', marginBottom: '2.5rem' }}>
+            <p className="hero-desc">
               Hal madal, qalab aan xad lahayn. Si ammaan ah u maaree caafimaadkaaga, hantidaada, 
               iyo wax-soo-saarkaaga adoo adeegsanaya nidaamkayaga app-yada ee modular-ka ah.
             </p>
-            <div className="flex-between" style={{ justifyContent: 'flex-start', gap: '1rem' }}>
+            <div className="hero-actions">
               <button className="btn btn-primary btn-lg" onClick={() => navigate('/vitalflow')}>
                 Bilow VitalFlow
               </button>
@@ -87,8 +87,8 @@ export default function Marketplace() {
           </div>
           
           <div className="hero-stats-overlay">
-            <div className="floating-bubble" style={{ top: '20%', right: '10%' }}></div>
-            <div className="floating-bubble" style={{ bottom: '30%', right: '15%' }}></div>
+            <div className="floating-bubble bubble-top"></div>
+            <div className="floating-bubble bubble-bottom"></div>
           </div>
         </div>
 
@@ -106,21 +106,21 @@ export default function Marketplace() {
         </div>
 
         {/* Explore Innovation Section */}
-        <div className="marketplace-section mt-xl">
+        <div className="marketplace-section">
           <div className="marketplace-section-header">
             <div className="marketplace-section-title">
               <Sparkles size={24} />
               Sahami Qolka Hal-abuurka
             </div>
-            <span className="text-muted" style={{ fontSize: '0.9rem' }}>Laguu soo xulay</span>
+            <span className="text-muted section-subtitle">Laguu soo xulay</span>
           </div>
           <div className="app-grid">
             {upcomingApps.map(app => <AppCard key={app.id} app={app} />)}
           </div>
         </div>
 
-        <footer className="mt-xl text-center" style={{ padding: '4rem 0', borderTop: '1px solid var(--card-border)' }}>
-          <div className="logo-text" style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>zeweno marketplace</div>
+        <footer className="marketplace-footer">
+          <div className="logo-text footer-logo">zeweno marketplace</div>
           <p className="text-muted">© 2026 Zeweno Systems. Xuquuqda oo dhan waa la dhowray.</p>
         </footer>
       </div>
