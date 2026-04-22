@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { StickyNote, Plus, Trash2, Edit3, Search, Folder, Clock } from 'lucide-react';
 import Modal from '../components/common/Modal';
+import AdUnit from '../components/common/AdUnit';
 
 export default function Notes() {
   const { notes, addNote, updateNote, deleteNote } = useApp();
@@ -56,6 +57,9 @@ export default function Notes() {
         </button>
       </div>
 
+      {/* Ad 1 — After header */}
+      <AdUnit format="horizontal" className="ad-page-bottom" />
+
       {/* Search + Folders */}
       <div className="flex-between mb-lg flex-wrap gap-md">
         <div style={{ position: 'relative', flex: '1 1 300px', maxWidth: '400px' }}>
@@ -88,6 +92,9 @@ export default function Notes() {
           <div className="stat-card-label">Folders Created</div>
         </div>
       </div>
+
+      {/* Ad 2 — After stats */}
+      <AdUnit format="auto" className="ad-page-bottom" />
 
       {/* Notes Grid */}
       {filtered.length === 0 ? (
@@ -134,6 +141,12 @@ export default function Notes() {
           ))}
         </div>
       )}
+
+      {/* Ad 3 — After notes grid */}
+      <AdUnit format="horizontal" className="ad-page-bottom" />
+
+      {/* Ad 4 — Page bottom */}
+      <AdUnit format="auto" className="ad-page-bottom" />
 
       {/* Add/Edit Modal */}
       <Modal isOpen={showAdd} onClose={() => { setShowAdd(false); setEditing(null); }}

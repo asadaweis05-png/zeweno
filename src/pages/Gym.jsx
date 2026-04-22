@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Dumbbell, Plus, Trophy, Calendar, TrendingUp, Trash2 } from 'lucide-react';
 import Modal from '../components/common/Modal';
+import AdUnit from '../components/common/AdUnit';
 import { calculateStreak, getWeekDays } from '../utils/calculations';
 import { MUSCLE_GROUPS, EXERCISES } from '../utils/constants';
 
@@ -62,6 +63,9 @@ export default function Gym() {
         </button>
       </div>
 
+      {/* Ad 1 — After header */}
+      <AdUnit format="horizontal" className="ad-page-bottom" />
+
       {/* Streak + Stats */}
       <div className="grid-stats mt-lg">
         <div className="glass-card glow-purple" style={{ textAlign: 'center' }}>
@@ -85,6 +89,9 @@ export default function Gym() {
           <div className="stat-card-label">Personal Records</div>
         </div>
       </div>
+
+      {/* Ad 2 — After stats */}
+      <AdUnit format="auto" className="ad-page-bottom" />
 
       {/* Week Overview */}
       <div className="glass-card mt-lg">
@@ -111,6 +118,9 @@ export default function Gym() {
           ))}
         </div>
       </div>
+
+      {/* Ad 3 — Between week and exercises */}
+      <AdUnit format="horizontal" className="ad-page-bottom" />
 
       {/* Today's Exercises */}
       <div className="grid-2 mt-lg" style={{ alignItems: 'start' }}>
@@ -171,6 +181,9 @@ export default function Gym() {
           )}
         </div>
       </div>
+
+      {/* Ad 4 — Page bottom */}
+      <AdUnit format="auto" className="ad-page-bottom" />
 
       {/* Add Workout Modal */}
       <Modal isOpen={showAdd} onClose={() => setShowAdd(false)} title="Log Workout">

@@ -5,6 +5,7 @@ import {
   Tag, Clock, Search, Video, Loader2,
 } from 'lucide-react';
 import Modal from '../components/common/Modal';
+import AdUnit from '../components/common/AdUnit';
 
 export default function Learning() {
   const { savedContent, addContent, removeContent, updateContent, apiKey } = useApp();
@@ -91,6 +92,9 @@ export default function Learning() {
         </button>
       </div>
 
+      {/* Ad 1 — After header */}
+      <AdUnit format="horizontal" className="ad-page-bottom" />
+
       {/* Search & Overview Stats */}
       <div className="flex-between mb-lg flex-wrap gap-md">
         <div style={{ maxWidth: '400px', flex: 1 }}>
@@ -126,6 +130,9 @@ export default function Learning() {
           <div className="stat-card-label">YouTube Sources</div>
         </div>
       </div>
+
+      {/* Ad 2 — After stats */}
+      <AdUnit format="auto" className="ad-page-bottom" />
 
       {/* Content List */}
       {filtered.length === 0 ? (
@@ -216,6 +223,12 @@ export default function Learning() {
           ))}
         </div>
       )}
+
+      {/* Ad 3 — After content list */}
+      <AdUnit format="horizontal" className="ad-page-bottom" />
+
+      {/* Ad 4 — Page bottom */}
+      <AdUnit format="auto" className="ad-page-bottom" />
 
       {/* Add Content Modal */}
       <Modal isOpen={showAdd} onClose={() => setShowAdd(false)} title="Save Content">

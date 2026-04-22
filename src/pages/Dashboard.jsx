@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import AdUnit from '../components/common/AdUnit';
 import {
   Flame, Dumbbell, Heart, BookOpen, StickyNote, Brain, Salad,
   TrendingUp, ArrowRight, Footprints,
@@ -34,6 +35,9 @@ export default function Dashboard() {
         <p className="text-secondary">Track your progress and achieve your goals today.</p>
       </div>
 
+      {/* Ad 1 — After header */}
+      <AdUnit format="horizontal" className="ad-dashboard" />
+
       <div className="grid-stats">
         <div className="glass-card stat-card glow-cyan">
           <div className="stat-card-icon cyan"><Flame size={20} /></div>
@@ -54,6 +58,9 @@ export default function Dashboard() {
           <p className="text-muted" style={{ fontSize: '0.8rem' }}>of 10,000 goal</p>
         </div>
       </div>
+
+      {/* Ad 2 — After stats */}
+      <AdUnit format="auto" className="ad-dashboard" />
 
       <div className="section-title mt-xl">
         <TrendingUp size={24} className="text-accent" />
@@ -77,6 +84,12 @@ export default function Dashboard() {
           );
         })}
       </div>
+
+      {/* Ad 3 — Mid content */}
+      <AdUnit format="horizontal" className="ad-dashboard mt-xl" />
+
+      {/* Ad 4 — Page bottom */}
+      <AdUnit format="auto" className="ad-page-bottom" />
     </div>
   );
 }

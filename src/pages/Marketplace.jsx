@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import AdUnit from '../components/common/AdUnit';
 import {
   Sparkles, Zap, LayoutDashboard,
   Shield, Globe, Cpu
@@ -92,6 +93,9 @@ export default function Marketplace() {
           </div>
         </div>
 
+        {/* Ad 1 — After hero */}
+        <AdUnit format="auto" className="ad-marketplace" />
+
         {/* Installed Section */}
         <div className="marketplace-section">
           <div className="marketplace-section-header">
@@ -104,6 +108,9 @@ export default function Marketplace() {
             {primaryApps.map(app => <AppCard key={app.id} app={app} />)}
           </div>
         </div>
+
+        {/* Optimized Ad Placement — between sections */}
+        <AdUnit format="horizontal" className="ad-marketplace" />
 
         {/* Explore Innovation Section */}
         <div className="marketplace-section">
@@ -119,7 +126,12 @@ export default function Marketplace() {
           </div>
         </div>
 
+        {/* Ad 3 — After explore section */}
+        <AdUnit format="auto" className="ad-marketplace" />
+
         <footer className="marketplace-footer">
+          {/* Ad 4 — Footer ad */}
+          <AdUnit format="horizontal" className="ad-marketplace" style={{ marginBottom: '2rem' }} />
           <div className="logo-text footer-logo">zeweno marketplace</div>
           <p className="text-muted">© 2026 Zeweno Systems. Xuquuqda oo dhan waa la dhowray.</p>
         </footer>

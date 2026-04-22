@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Home, ArrowLeft, Ghost } from 'lucide-react';
+import AdUnit from '../components/common/AdUnit';
 
 export default function NotFound() {
   const navigate = useNavigate();
@@ -17,6 +18,9 @@ export default function NotFound() {
         <div className="aurora-blob blob-1"></div>
       </div>
       
+      {/* Ad 1 — Top of 404 page */}
+      <AdUnit format="horizontal" className="ad-marketplace mb-xl" />
+
       <div className="glass-card" style={{ maxWidth: '500px', width: '100%' }}>
         <div className="stat-card-icon red mb-lg" style={{ 
           width: '80px', 
@@ -43,6 +47,15 @@ export default function NotFound() {
           </button>
         </div>
       </div>
+
+      {/* Ad 2 — Below 404 card */}
+      <AdUnit format="auto" className="ad-marketplace mt-xl" />
+      
+      {/* Ad 3 — Middle section ad */}
+      <AdUnit format="horizontal" className="ad-marketplace mt-xl" />
+
+      {/* Ad 4 — Bottom of page */}
+      <AdUnit format="auto" className="ad-page-bottom" />
     </div>
   );
 }

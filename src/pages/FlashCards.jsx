@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Brain, Plus, Trash2, Edit3, RotateCcw, ChevronLeft, ChevronRight, Check, X, Layers } from 'lucide-react';
 import Modal from '../components/common/Modal';
+import AdUnit from '../components/common/AdUnit';
 
 export default function FlashCards() {
   const { flashDecks, addFlashDeck, updateFlashDeck, deleteFlashDeck } = useApp();
@@ -173,6 +174,9 @@ export default function FlashCards() {
         </button>
       </div>
 
+      {/* Ad 1 — After header */}
+      <AdUnit format="horizontal" className="ad-page-bottom" />
+
       {/* Stats Cards */}
       <div className="grid-stats mt-lg mb-lg">
         <div className="glass-card stat-card glow-amber">
@@ -193,6 +197,9 @@ export default function FlashCards() {
           <div className="stat-card-label">Mastered Cards</div>
         </div>
       </div>
+
+      {/* Ad 2 — After stats */}
+      <AdUnit format="auto" className="ad-page-bottom" />
 
       {/* Decks Grid */}
       {flashDecks.length === 0 ? (
@@ -291,6 +298,12 @@ export default function FlashCards() {
           })}
         </div>
       )}
+
+      {/* Ad 3 — After decks */}
+      <AdUnit format="horizontal" className="ad-page-bottom" />
+
+      {/* Ad 4 — Page bottom */}
+      <AdUnit format="auto" className="ad-page-bottom" />
 
       {/* Create Deck Modal */}
       <Modal isOpen={showAdd} onClose={() => setShowAdd(false)} title="Create Flash Card Deck">

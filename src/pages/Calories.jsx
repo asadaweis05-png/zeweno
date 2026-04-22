@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { Flame, Plus, Trash2, Search, Calculator } from 'lucide-react';
 import ProgressRing from '../components/common/ProgressRing';
 import Modal from '../components/common/Modal';
+import AdUnit from '../components/common/AdUnit';
 import { calculateBMR, calculateTDEE, calculateMacros } from '../utils/calculations';
 import { COMMON_FOODS, ACTIVITY_LEVELS } from '../utils/constants';
 
@@ -69,6 +70,9 @@ export default function Calories() {
         </div>
       </div>
 
+      {/* Ad 1 — After header */}
+      <AdUnit format="horizontal" className="ad-page-bottom" />
+
       {/* Progress Overview */}
       <div className="grid-2 mt-lg" style={{ alignItems: 'stretch' }}>
         <div className="glass-card glow-cyan" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-xl)', flexWrap: 'wrap' }}>
@@ -115,6 +119,9 @@ export default function Calories() {
         </div>
       </div>
 
+      {/* Ad 2 — Between progress and meals */}
+      <AdUnit format="auto" className="ad-page-bottom" />
+
       {/* Today's Meals */}
       <h2 className="section-title mt-xl">
         <Flame size={20} className="text-accent" /> Today's Meals
@@ -148,6 +155,12 @@ export default function Calories() {
           ))}
         </div>
       )}
+
+      {/* Ad 3 — After meals list */}
+      <AdUnit format="horizontal" className="ad-page-bottom" />
+
+      {/* Ad 4 — Page bottom */}
+      <AdUnit format="auto" className="ad-page-bottom" />
 
       {/* Add Meal Modal */}
       <Modal isOpen={showAdd} onClose={() => { setShowAdd(false); setSearch(''); }} title="Add Meal">

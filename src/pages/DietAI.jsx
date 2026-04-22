@@ -5,6 +5,7 @@ import {
   Clock, ChevronDown, ChevronUp, Utensils, Target,
 } from 'lucide-react';
 import Modal from '../components/common/Modal';
+import AdUnit from '../components/common/AdUnit';
 import { calculateBMR, calculateTDEE, calculateMacros } from '../utils/calculations';
 import { DIETARY_PREFERENCES, FITNESS_GOALS } from '../utils/constants';
 
@@ -110,6 +111,9 @@ Only respond with valid JSON, no markdown or other text.`;
         </div>
       </div>
 
+      {/* Ad 1 — After header */}
+      <AdUnit format="horizontal" className="ad-page-bottom" />
+
       {/* Profile Summary */}
       <div className="grid-stats mt-lg mb-lg">
         <div className="glass-card stat-card glow-cyan">
@@ -133,6 +137,9 @@ Only respond with valid JSON, no markdown or other text.`;
           <div className="stat-card-label">Fat Goal</div>
         </div>
       </div>
+
+      {/* Ad 2 — After stats */}
+      <AdUnit format="auto" className="ad-page-bottom" />
 
       {/* Generation Options */}
       <div className="glass-card mb-lg">
@@ -166,6 +173,9 @@ Only respond with valid JSON, no markdown or other text.`;
           </div>
         </div>
       </div>
+
+      {/* Ad 3 — After generation settings */}
+      <AdUnit format="horizontal" className="ad-page-bottom" />
 
       {/* Generated Plans */}
       {mealPlans.length === 0 ? (
@@ -270,6 +280,9 @@ Only respond with valid JSON, no markdown or other text.`;
           ))}
         </div>
       )}
+
+      {/* Ad 4 — Page bottom */}
+      <AdUnit format="auto" className="ad-page-bottom" />
 
       {/* Settings Modal */}
       <Modal isOpen={showSettings} onClose={() => setShowSettings(false)} title="AI Settings">
