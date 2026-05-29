@@ -1,31 +1,25 @@
 import { NavLink, Link } from 'react-router-dom';
 import {
-  LayoutDashboard, Flame, Dumbbell, Heart,
-  Salad, ArrowLeft, Users
+  BookOpen, StickyNote, Brain, ArrowLeft, Sparkles, Zap
 } from 'lucide-react';
 
 const navItems = [
-  { section: 'Overview' },
-  { to: '/vitalflow', icon: LayoutDashboard, label: 'Dashboard' },
-  { section: 'Fitness' },
-  { to: '/vitalflow/calories', icon: Flame, label: 'Calories' },
-  { to: '/vitalflow/gym', icon: Dumbbell, label: 'Gym & Streaks' },
-  { to: '/vitalflow/community', icon: Users, label: 'Gym Community' },
-  { section: 'Health' },
-  { to: '/vitalflow/health', icon: Heart, label: 'Health' },
-  { section: 'AI' },
-  { to: '/vitalflow/diet-ai', icon: Salad, label: 'Diet Plan' },
+  { section: 'Study Tools' },
+  { to: '/studyflow', icon: BookOpen, label: 'Learning Hub', end: true },
+  { to: '/studyflow/notes', icon: StickyNote, label: 'Smart Notes' },
+  { to: '/studyflow/flashcards', icon: Brain, label: 'Flash Cards' },
 ];
 
-export default function Sidebar() {
+export default function StudySidebar() {
   return (
-    <aside className="sidebar">
+    <aside className="sidebar study-sidebar">
       <Link to="/" className="sidebar-link" style={{ margin: '1rem', marginBottom: '0', background: 'var(--bg-deep)' }}>
         <ArrowLeft size={18} />
-        <span>Suuqa Guud</span>
+        <span>Marketplace</span>
       </Link>
       <div className="sidebar-logo">
-        <span className="logo-text">vitalflow</span>
+        <span className="logo-text study-logo">studyflow</span>
+        <span className="logo-badge"><Zap size={10} />OS</span>
       </div>
       <nav className="sidebar-nav">
         {navItems.map((item, i) => {
@@ -41,7 +35,7 @@ export default function Sidebar() {
             <NavLink
               key={item.to}
               to={item.to}
-              end={item.to === '/'}
+              end={item.end}
               className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
             >
               {({ isActive }) => (
@@ -54,6 +48,11 @@ export default function Sidebar() {
           );
         })}
       </nav>
+
+      <div className="sidebar-footer-badge">
+        <Sparkles size={14} />
+        <span>AI-Powered Learning</span>
+      </div>
     </aside>
   );
 }

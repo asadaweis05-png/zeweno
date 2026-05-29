@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import AdUnit from '../components/common/AdUnit';
 import {
   Sparkles, Zap, LayoutDashboard,
-  Shield, Globe, Cpu
+  Shield, Globe, Cpu, BookOpen
 } from 'lucide-react';
 
 export default function Marketplace() {
@@ -17,8 +17,19 @@ export default function Marketplace() {
       icon: LayoutDashboard, 
       title: 'VitalFlow OS', 
       dev: 'Zeweno Systems', 
-      desc: 'Nidaam dhammaystiran oo loogu talagalay caafimaadka iyo wax-soo-saarka. Lasoco kallooriyaasha, jimicsiga, qoraallada, iyo qorshayaasha cuntada ee AI hal meel oo qura.', 
+      desc: 'Nidaam dhammaystiran oo loogu talagalay caafimaadka iyo wax-soo-saarka. Lasoco kallooriyaasha, jimicsiga, bulshada gym, iyo qorshayaasha cuntada ee AI hal meel oo qura.', 
       color: 'blue', 
+      tag: 'Rakiban',
+      featured: true 
+    },
+    { 
+      id: 'sf', 
+      to: '/studyflow', 
+      icon: BookOpen, 
+      title: 'StudyFlow OS', 
+      dev: 'Zeweno Systems', 
+      desc: 'Goobta waxbarashada ee casriga ah. Ururso qoraallo, ku daabac xogta Flash Cards, oo ku baadh waxyaabaha aad baranayso adoo adeegsanaya AI-ka casriga ah.', 
+      color: 'purple', 
       tag: 'Rakiban',
       featured: true 
     },

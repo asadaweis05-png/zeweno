@@ -285,7 +285,7 @@ export default function Health() {
               <h3 className="section-title"><Footprints size={20} className="text-accent" /> Log Progress</h3>
               <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
                 <input className="form-input" type="number" placeholder="Enter steps (e.g. 5000)"
-                  value={stepInput} onChange={setStepInput}
+                  value={stepInput} onChange={e => setStepInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && handleLogSteps()}
                 />
                 <button className="btn btn-primary" onClick={handleLogSteps}>Save Steps</button>

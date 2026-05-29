@@ -1,26 +1,22 @@
 import { NavLink } from 'react-router-dom';
-import {
-  LayoutDashboard, Flame, Dumbbell, Heart, Users,
-} from 'lucide-react';
+import { BookOpen, StickyNote, Brain } from 'lucide-react';
 
 const primaryItems = [
-  { to: '/vitalflow', icon: LayoutDashboard, label: 'Home' },
-  { to: '/vitalflow/calories', icon: Flame, label: 'Calories' },
-  { to: '/vitalflow/gym', icon: Dumbbell, label: 'Gym' },
-  { to: '/vitalflow/health', icon: Heart, label: 'Health' },
-  { to: '/vitalflow/community', icon: Users, label: 'Community' },
+  { to: '/studyflow', icon: BookOpen, label: 'Learn', end: true },
+  { to: '/studyflow/notes', icon: StickyNote, label: 'Notes' },
+  { to: '/studyflow/flashcards', icon: Brain, label: 'Cards' },
 ];
 
-export default function BottomNav() {
+export default function StudyBottomNav() {
   return (
-    <nav className="bottom-nav">
+    <nav className="bottom-nav study-bottom-nav">
       {primaryItems.map(item => {
         const Icon = item.icon;
         return (
           <NavLink
             key={item.to}
             to={item.to}
-            end={item.to === '/vitalflow'}
+            end={item.end}
             className={({ isActive }) => `bottom-nav-item ${isActive ? 'active' : ''}`}
           >
             {({ isActive }) => (

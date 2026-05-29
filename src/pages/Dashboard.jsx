@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import AdUnit from '../components/common/AdUnit';
 import {
-  Flame, Dumbbell, Heart, BookOpen, StickyNote, Brain, Salad,
-  TrendingUp, ArrowRight, Footprints,
+  Flame, Dumbbell, Heart, Salad,
+  TrendingUp, ArrowRight, Footprints, Users,
 } from 'lucide-react';
 import { calculateBMR, calculateTDEE, calculateStreak } from '../utils/calculations';
 
@@ -21,17 +21,15 @@ export default function Dashboard() {
   const modules = [
     { to: '/vitalflow/calories', icon: Flame, title: 'Calories', desc: `${todayCalories} / ${calorieGoal} kcal`, color: 'cyan' },
     { to: '/vitalflow/gym', icon: Dumbbell, title: 'Workout', desc: `${streak} Day Streak`, color: 'purple' },
-    { to: '/vitalflow/health', icon: Heart, title: 'Health', desc: 'Monitor Vitals', color: 'pink' },
-    { to: '/vitalflow/learning', icon: BookOpen, title: 'Learning', desc: 'Summarize Content', color: 'blue' },
-    { to: '/vitalflow/notes', icon: StickyNote, title: 'Notes', desc: 'Secure Thoughts', color: 'amber' },
-    { to: '/vitalflow/flashcards', icon: Brain, title: 'Study', desc: 'Master Skills', color: 'purple' },
-    { to: '/vitalflow/diet-ai', icon: Salad, title: 'Diet AI', desc: 'Personalized Plans', color: 'cyan' },
+    { to: '/vitalflow/community', icon: Users, title: 'Community', desc: 'Share & Connect', color: 'pink' },
+    { to: '/vitalflow/health', icon: Heart, title: 'Health', desc: 'Monitor Vitals', color: 'blue' },
+    { to: '/vitalflow/diet-ai', icon: Salad, title: 'Diet AI', desc: 'Personalized Plans', color: 'amber' },
   ];
 
   return (
     <div className="animate-fade-in">
       <div className="page-header">
-        <h1>Welcome back{profile.name ? `, ${profile.name}` : ''}</h1>
+        <h1 className="text-gradient">Welcome back{profile.name ? `, ${profile.name}` : ''}</h1>
         <p className="text-secondary">Track your progress and achieve your goals today.</p>
       </div>
 
