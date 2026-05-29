@@ -1,13 +1,17 @@
 import { NavLink, Link } from 'react-router-dom';
 import {
-  BookOpen, StickyNote, Brain, ArrowLeft, Sparkles, Zap
+  BookOpen, StickyNote, Brain, ArrowLeft, Sparkles, Zap,
+  GraduationCap
 } from 'lucide-react';
+
+const examsUrl = import.meta.env.VITE_EXAMS_URL || 'https://exams.zeweno.com';
 
 const navItems = [
   { section: 'Study Tools' },
   { to: '/studyflow', icon: BookOpen, label: 'Learning Hub', end: true },
   { to: '/studyflow/notes', icon: StickyNote, label: 'Smart Notes' },
   { to: '/studyflow/flashcards', icon: Brain, label: 'Flash Cards' },
+  { to: examsUrl, icon: GraduationCap, label: 'Exams', isExternal: true },
 ];
 
 export default function StudySidebar() {
@@ -31,6 +35,20 @@ export default function StudySidebar() {
             );
           }
           const Icon = item.icon;
+          if (item.isExternal) {
+            return (
+              <a
+                key={item.label}
+                href={item.to}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="sidebar-link"
+              >
+                <Icon size={20} strokeWidth={2} />
+                <span>{item.label}</span>
+              </a>
+            );
+          }
           return (
             <NavLink
               key={item.to}

@@ -2,8 +2,11 @@ import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import AdUnit from '../components/common/AdUnit';
 import {
-  BookOpen, StickyNote, Brain, Sparkles, Target, TrendingUp, ArrowRight, Zap
+  BookOpen, StickyNote, Brain, Sparkles, Target, TrendingUp, ArrowRight, Zap,
+  GraduationCap
 } from 'lucide-react';
+
+const examsUrl = import.meta.env.VITE_EXAMS_URL || 'https://exams.zeweno.com';
 
 export default function StudyDashboard() {
   const { savedContent, notes, flashDecks } = useApp();
@@ -37,6 +40,15 @@ export default function StudyDashboard() {
       desc: `${totalDecks} decks • ${totalCards} cards`,
       color: 'purple',
       tag: 'Spaced Repetition'
+    },
+    {
+      to: examsUrl,
+      icon: GraduationCap,
+      title: 'Exams Portal',
+      desc: 'Take interactive quizzes and mock exams',
+      color: 'cyan',
+      tag: 'Exam Simulators',
+      isExternal: true
     },
   ];
 
@@ -97,6 +109,27 @@ export default function StudyDashboard() {
       <div className="study-module-grid mt-md">
         {modules.map((item, i) => {
           const Icon = item.icon;
+          if (item.isExternal) {
+            return (
+              <a
+                key={i}
+                href={item.to}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`study-module-card glass-card glow-${item.color}`}
+              >
+                <div className="flex-between mb-md">
+                  <div className={`stat-card-icon ${item.color}`} style={{ width: '48px', height: '48px', marginBottom: 0 }}>
+                    <Icon size={22} />
+                  </div>
+                  <ArrowRight size={16} className="text-muted" />
+                </div>
+                <h3 style={{ marginBottom: '0.25rem', fontSize: '1.1rem' }}>{item.title}</h3>
+                <p style={{ fontSize: '0.825rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>{item.desc}</p>
+                <span className={`badge badge-${item.color}`}>{item.tag}</span>
+              </a>
+            );
+          }
           return (
             <Link key={i} to={item.to} className={`study-module-card glass-card glow-${item.color}`}>
               <div className="flex-between mb-md">
