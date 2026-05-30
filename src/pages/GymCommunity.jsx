@@ -106,7 +106,9 @@ export default function GymCommunity() {
     friends,
     setFriends,
     coStreaks,
-    setCoStreaks
+    setCoStreaks,
+    todayWorkouts,
+    workouts
   } = useApp();
   const streak = calculateStreak(workoutDates);
 
@@ -120,6 +122,20 @@ export default function GymCommunity() {
   const [searchQuery, setSearchQuery] = useState('');
   
   const [selectedPartner, setSelectedPartner] = useState('');
+
+  const [attachedWorkout, setAttachedWorkout] = useState(null);
+  const [showWorkoutSelector, setShowWorkoutSelector] = useState(false);
+  const [selectorMode, setSelectorMode] = useState('workout'); // workout | pr
+
+  // Compute Personal Records (PRs) from workouts history
+  const allWorkoutsList = Object.values(workouts || {}).flat();
+  const prsMap = {};
+  allWorkoutsList.forEach(w => {
+    if (w.weight && (!prsMap[w.exercise] || w.weight > prsMap[w.exercise].weight)) {
+      prsMap[w.exercise] = w;
+    }
+  });
+  const prsList = Object.values(prsMap);
 
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -181,7 +197,7 @@ export default function GymCommunity() {
       time: 'Just now',
       content: postText,
       image: postImage,
-      workout: null,
+      workout: attachedWorkout,
       streak,
       likes: 0,
       comments: 0,
@@ -193,6 +209,7 @@ export default function GymCommunity() {
     setPostText('');
     setPostImage(null);
     setSelectedPartner('');
+    setAttachedWorkout(null);
     setShowPostModal(false);
   }
 
@@ -404,12 +421,33 @@ export default function GymCommunity() {
 
                 {/* Workout badge */}
                 {post.workout && (
-                  <div className="post-workout-tag">
-                    <Dumbbell size={14} />
-                    <span>{post.workout.type}</span>
-                    <span className="badge badge-purple">{post.workout.weight}</span>
-                    <span className="badge badge-cyan">{post.workout.sets}×{post.workout.reps}</span>
-                  </div>
+                  post.workout.isPR ? (
+                    <div className="post-workout-tag pr-tag" style={{
+                      background: 'rgba(255, 179, 0, 0.08)',
+                      border: '1px solid rgba(255, 179, 0, 0.25)',
+                      color: 'var(--accent-amber)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '0.5rem 0.875rem',
+                      marginBottom: '0.875rem',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                    }}>
+                      <Trophy size={14} className="text-accent-amber" />
+                      <span>PR Set: {post.workout.type}</span>
+                      <span className="badge badge-amber" style={{ background: 'rgba(255, 179, 0, 0.15)', color: 'var(--accent-amber)', borderColor: 'rgba(255, 179, 0, 0.3)' }}>{post.workout.weight}</span>
+                      <span className="badge badge-cyan" style={{ background: 'rgba(0, 240, 255, 0.1)', color: 'var(--accent-cyan)', borderColor: 'rgba(0, 240, 255, 0.2)' }}>{post.workout.sets}×{post.workout.reps}</span>
+                    </div>
+                  ) : (
+                    <div className="post-workout-tag">
+                      <Dumbbell size={14} />
+                      <span>{post.workout.type}</span>
+                      <span className="badge badge-purple">{post.workout.weight}</span>
+                      <span className="badge badge-cyan">{post.workout.sets}×{post.workout.reps}</span>
+                    </div>
+                  )
                 )}
 
                 {/* Image placeholder */}
@@ -702,7 +740,7 @@ export default function GymCommunity() {
               </div>
             )}
 
-            {/* Buddy Partner Selector */}
+             {/* Buddy Partner Selector */}
             <div className="form-group" style={{ marginBottom: '1.25rem' }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
                 Workout Partner (Co-Streak)
@@ -722,15 +760,158 @@ export default function GymCommunity() {
               </select>
             </div>
 
+            {/* Attached Workout Preview */}
+            {attachedWorkout && (
+              <div className="glass-card animate-slide-up" style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0.65rem 1rem',
+                marginBottom: '1.25rem',
+                border: attachedWorkout.isPR ? '1px dashed var(--accent-amber)' : '1px dashed var(--accent-cyan)',
+                background: attachedWorkout.isPR ? 'rgba(255, 179, 0, 0.05)' : 'rgba(0, 240, 255, 0.05)',
+                borderRadius: 'var(--radius-md)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  {attachedWorkout.isPR ? (
+                    <Trophy size={16} className="text-accent-amber" />
+                  ) : (
+                    <Dumbbell size={16} className="text-accent-cyan" />
+                  )}
+                  <div style={{ fontSize: '0.8rem' }}>
+                    <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>
+                      {attachedWorkout.isPR ? 'PR Attached' : 'Workout Attached'}
+                    </div>
+                    <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                      <span>{attachedWorkout.type}</span>
+                      <span className="badge badge-purple" style={{ fontSize: '0.65rem', padding: '1px 4px' }}>{attachedWorkout.sets} sets</span>
+                      <span className="badge badge-cyan" style={{ fontSize: '0.65rem', padding: '1px 4px' }}>{attachedWorkout.reps} reps</span>
+                      <span className="badge badge-amber" style={{ fontSize: '0.65rem', padding: '1px 4px' }}>{attachedWorkout.weight}</span>
+                    </div>
+                  </div>
+                </div>
+                <button className="icon-btn" onClick={() => setAttachedWorkout(null)} style={{ padding: '4px' }}>
+                  <X size={14} style={{ color: 'var(--accent-red)' }} />
+                </button>
+              </div>
+            )}
+
+            {/* Workout Selector Overlay */}
+            {showWorkoutSelector && (
+              <div className="workout-selector-overlay glass-card animate-fade-in" style={{
+                position: 'absolute',
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: 'var(--bg-deep)',
+                zIndex: 10,
+                padding: '1.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: 'var(--radius-xl)',
+                border: '1px solid rgba(0, 240, 255, 0.2)',
+                boxSizing: 'border-box'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexShrink: 0 }}>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    {selectorMode === 'workout' ? (
+                      <><Dumbbell size={18} className="text-accent-cyan" /> Select Today's Workout</>
+                    ) : (
+                      <><Trophy size={18} className="text-accent-amber" /> Select Personal Record</>
+                    )}
+                  </h3>
+                  <button className="icon-btn" onClick={() => setShowWorkoutSelector(false)}>
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem', paddingRight: '4px' }}>
+                  {selectorMode === 'workout' ? (
+                    todayWorkouts.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-muted)' }}>
+                        <Dumbbell size={32} style={{ opacity: 0.3, marginBottom: '1rem', color: 'var(--accent-cyan)' }} />
+                        <p style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-main)' }}>No exercises logged today yet</p>
+                        <p style={{ fontSize: '0.75rem', lineHeight: 1.4 }}>Go to the <strong>Training & Streaks</strong> section to log workouts, then come back here to share them!</p>
+                      </div>
+                    ) : (
+                      todayWorkouts.map((w, idx) => (
+                        <div
+                          key={w.id || idx}
+                          className="list-item"
+                          style={{ cursor: 'pointer', border: '1px solid var(--card-border)', background: 'var(--bg-card)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}
+                          onClick={() => {
+                            setAttachedWorkout({
+                              type: w.exercise,
+                              weight: `${w.weight}kg`,
+                              sets: w.sets,
+                              reps: w.reps,
+                              muscleGroup: w.muscleGroup,
+                              isPR: false
+                            });
+                            setShowWorkoutSelector(false);
+                          }}
+                        >
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--text-main)' }}>{w.exercise}</div>
+                            <div style={{ display: 'flex', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
+                              {w.sets > 0 && <span className="badge badge-purple" style={{ fontSize: '0.65rem', padding: '1px 5px' }}>{w.sets} sets</span>}
+                              {w.reps > 0 && <span className="badge badge-cyan" style={{ fontSize: '0.65rem', padding: '1px 5px' }}>{w.reps} reps</span>}
+                              {w.weight > 0 && <span className="badge badge-amber" style={{ fontSize: '0.65rem', padding: '1px 5px' }}>{w.weight} kg</span>}
+                            </div>
+                          </div>
+                          <span className="badge badge-green" style={{ fontSize: '0.65rem', alignSelf: 'center' }}>{w.muscleGroup}</span>
+                        </div>
+                      ))
+                    )
+                  ) : (
+                    prsList.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--text-muted)' }}>
+                        <Trophy size={32} style={{ opacity: 0.3, marginBottom: '1rem', color: 'var(--accent-amber)' }} />
+                        <p style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-main)' }}>No Personal Records yet</p>
+                        <p style={{ fontSize: '0.75rem', lineHeight: 1.4 }}>Log exercises with weights in the <strong>Training</strong> page to build your record board!</p>
+                      </div>
+                    ) : (
+                      prsList.map((w, idx) => (
+                        <div
+                          key={w.id || idx}
+                          className="list-item"
+                          style={{ cursor: 'pointer', border: '1px solid var(--card-border)', background: 'var(--bg-card)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}
+                          onClick={() => {
+                            setAttachedWorkout({
+                              type: w.exercise,
+                              weight: `${w.weight}kg`,
+                              sets: w.sets || 1,
+                              reps: w.reps || 1,
+                              muscleGroup: w.muscleGroup,
+                              isPR: true
+                            });
+                            setShowWorkoutSelector(false);
+                          }}
+                        >
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--accent-amber)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <Trophy size={14} /> {w.exercise}
+                            </div>
+                            <div style={{ display: 'flex', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
+                              {w.weight > 0 && <span className="badge badge-amber" style={{ fontSize: '0.65rem', padding: '1px 5px' }}>Record: {w.weight} kg</span>}
+                            </div>
+                          </div>
+                          <span className="badge badge-purple" style={{ fontSize: '0.65rem', alignSelf: 'center' }}>{w.muscleGroup}</span>
+                        </div>
+                      ))
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="post-modal-actions">
               <div className="post-modal-media">
                 <button className="media-btn" onClick={() => fileInputRef.current?.click()}>
                   <Camera size={18} /> Photo
                 </button>
-                <button className="media-btn">
+                <button className="media-btn" onClick={() => { setSelectorMode('workout'); setShowWorkoutSelector(true); }}>
                   <Dumbbell size={18} /> Workout
                 </button>
-                <button className="media-btn">
+                <button className="media-btn" onClick={() => { setSelectorMode('pr'); setShowWorkoutSelector(true); }}>
                   <Trophy size={18} /> PR
                 </button>
               </div>
