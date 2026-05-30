@@ -127,6 +127,10 @@ export default function GymCommunity() {
   const [showWorkoutSelector, setShowWorkoutSelector] = useState(false);
   const [selectorMode, setSelectorMode] = useState('workout'); // workout | pr
 
+  const [toastMessage, setToastMessage] = useState('');
+  const [activeCommentsPostId, setActiveCommentsPostId] = useState(null);
+  const [commentInputs, setCommentInputs] = useState({});
+
   // Compute Personal Records (PRs) from workouts history
   const allWorkoutsList = Object.values(workouts || {}).flat();
   const prsMap = {};
@@ -136,6 +140,58 @@ export default function GymCommunity() {
     }
   });
   const prsList = Object.values(prsMap);
+
+  const currentHandle = `@${(profile.name || 'you').toLowerCase().replace(/\s/g, '')}`;
+
+  function triggerToast(message) {
+    setToastMessage(message);
+    setTimeout(() => setToastMessage(''), 2500);
+  }
+
+  function handleDeletePost(postId) {
+    if (window.confirm('Miyaad xaqiijinaysaa inaad tirtirto qoraalkan?')) {
+      setPosts(prev => prev.filter(p => p.id !== postId));
+      triggerToast('Qoraalka waa la tirtiray! 🗑️');
+    }
+  }
+
+  function handleSharePost(post) {
+    const postLink = `https://zeweno.com/post/${post.id}`;
+    navigator.clipboard.writeText(postLink).then(() => {
+      triggerToast('Link-ga qoraalka waa la koobiyeeyay! 🔗');
+    }).catch(() => {
+      triggerToast('Lala koobiyeeyay! 🔗');
+    });
+  }
+
+  function handleAddComment(postId) {
+    const text = commentInputs[postId]?.trim();
+    if (!text) return;
+
+    setPosts(prev => prev.map(p => {
+      if (p.id === postId) {
+        const existingComments = Array.isArray(p.comments) ? p.comments : [];
+        const newComment = {
+          id: `c${Date.now()}`,
+          user: {
+            name: profile.name || 'You',
+            handle: currentHandle,
+            avatar: '🏃'
+          },
+          time: 'Just now',
+          text: text
+        };
+        return {
+          ...p,
+          comments: [...existingComments, newComment]
+        };
+      }
+      return p;
+    }));
+
+    setCommentInputs(prev => ({ ...prev, [postId]: '' }));
+    triggerToast('Faalladaada waa la daray! 💬');
+  }
 
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -200,7 +256,7 @@ export default function GymCommunity() {
       workout: attachedWorkout,
       streak,
       likes: 0,
-      comments: 0,
+      comments: [],
       liked: false,
       saved: false,
       sharedPartner: partnerInfo
@@ -322,66 +378,91 @@ export default function GymCommunity() {
               />
             </div>
 
-            {filteredPosts.map(post => (
-              <div key={post.id} className="community-post glass-card">
-                {/* Post header */}
-                <div className="post-header">
-                  <div className="post-avatar">{post.user.avatar}</div>
-                  <div className="post-user-info">
-                    <div className="post-username">
-                      {post.user.name}
-                      <span
-                        className="post-badge"
-                        style={{ background: BADGE_COLORS[post.user.badge] || 'var(--accent-cyan)' }}
-                      >
-                        {post.user.badge}
-                      </span>
-                    </div>
-                    <div className="post-meta">
-                      {post.user.handle} · {post.time}
-                      {post.streak > 0 && (
-                        <span className="post-streak">
-                          <Flame size={12} /> {post.streak}d
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Add Buddy / Friends Button */}
-                  {post.user.handle !== `@${(profile.name || 'you').toLowerCase().replace(/\s/g, '')}` && (
-                    <button
-                      onClick={() => toggleFriend(post.user.handle, post.user.name, post.user.avatar, post.streak || 1)}
-                      className={`btn btn-sm ${friends.includes(post.user.handle) ? 'btn-secondary' : 'btn-primary'}`}
-                      style={{
-                        padding: '0.35rem 0.65rem',
-                        fontSize: '0.75rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.25rem',
-                        marginRight: '0.5rem',
-                        background: friends.includes(post.user.handle) ? 'rgba(0, 240, 255, 0.1)' : '',
-                        borderColor: friends.includes(post.user.handle) ? 'var(--accent-cyan)' : '',
-                        color: friends.includes(post.user.handle) ? 'var(--accent-cyan)' : ''
-                      }}
-                    >
-                      {friends.includes(post.user.handle) ? (
-                        <>
-                          <UserCheck size={13} />
-                          <span>Buddy</span>
-                        </>
-                      ) : (
-                        <>
-                          <UserPlus size={13} />
-                          <span>Add</span>
-                        </>
-                      )}
-                    </button>
-                  )}
-
-                  <button className="icon-btn post-more-btn">
-                    <MoreHorizontal size={18} />
-                  </button>
+            {filteredPosts.length === 0 ? (
+              <div className="glass-card empty-state animate-slide-up" style={{ padding: '3.5rem 2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem', border: '1px dashed var(--card-border)', background: 'rgba(3, 10, 22, 0.4)' }}>
+                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(0, 240, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0, 240, 255, 0.15)', boxShadow: '0 0 20px rgba(0, 240, 255, 0.05)' }}>
+                  <Users size={32} className="text-accent-cyan" style={{ filter: 'drop-shadow(0 0 4px var(--accent-cyan))' }} />
                 </div>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--text-main)' }}>Feed-ka waa maran yahay</h3>
+                <p className="text-secondary" style={{ fontSize: '0.875rem', maxWidth: '400px', margin: '0 auto', lineHeight: 1.5 }}>
+                  Miyayna jirin wax daqiiqad ah oo la wadaagay wali? Noqo qofka ugu horreeya ee wadaaga tababarkiisa iyo guulihiisa!
+                </p>
+                <button className="btn btn-primary" onClick={() => setShowPostModal(true)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, padding: '0.65rem 1.25rem' }}>
+                  <Camera size={16} /> Wadaag Moment-kaagii
+                </button>
+              </div>
+            ) : (
+              filteredPosts.map(post => (
+                <div key={post.id} className="community-post glass-card">
+                  {/* Post header */}
+                  <div className="post-header">
+                    <div className="post-avatar">{post.user.avatar}</div>
+                    <div className="post-user-info">
+                      <div className="post-username">
+                        {post.user.name}
+                        <span
+                          className="post-badge"
+                          style={{ background: BADGE_COLORS[post.user.badge] || 'var(--accent-cyan)' }}
+                        >
+                          {post.user.badge}
+                        </span>
+                      </div>
+                      <div className="post-meta">
+                        {post.user.handle} · {post.time}
+                        {post.streak > 0 && (
+                          <span className="post-streak">
+                            <Flame size={12} /> {post.streak}d
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Add Buddy / Friends Button */}
+                    {post.user.handle !== `@${(profile.name || 'you').toLowerCase().replace(/\s/g, '')}` && (
+                      <button
+                        onClick={() => toggleFriend(post.user.handle, post.user.name, post.user.avatar, post.streak || 1)}
+                        className={`btn btn-sm ${friends.includes(post.user.handle) ? 'btn-secondary' : 'btn-primary'}`}
+                        style={{
+                          padding: '0.35rem 0.65rem',
+                          fontSize: '0.75rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          marginRight: '0.5rem',
+                          background: friends.includes(post.user.handle) ? 'rgba(0, 240, 255, 0.1)' : '',
+                          borderColor: friends.includes(post.user.handle) ? 'var(--accent-cyan)' : '',
+                          color: friends.includes(post.user.handle) ? 'var(--accent-cyan)' : ''
+                        }}
+                      >
+                        {friends.includes(post.user.handle) ? (
+                          <>
+                            <UserCheck size={13} />
+                            <span>Buddy</span>
+                          </>
+                        ) : (
+                          <>
+                            <UserPlus size={13} />
+                            <span>Add</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+
+                    {post.user.handle === currentHandle ? (
+                      <button 
+                        onClick={() => handleDeletePost(post.id)}
+                        className="icon-btn" 
+                        style={{ color: 'var(--accent-red)', padding: '0.375rem', borderRadius: 'var(--radius-md)', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                        title="Delete Post"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    ) : (
+                      <button className="icon-btn post-more-btn">
+                        <MoreHorizontal size={18} />
+                      </button>
+                    )}
+                  </div>
 
                 {/* Shared Streak Partner Banner */}
                 {post.sharedPartner && (
@@ -475,14 +556,18 @@ export default function GymCommunity() {
                     className={`post-action-btn ${post.liked ? 'liked' : ''}`}
                     onClick={() => handleLike(post.id)}
                   >
-                    <Heart size={18} fill={post.liked ? 'currentColor' : 'none'} />
+                    <Heart size={18} fill={post.liked ? 'currentColor' : 'none'} fillOpacity={post.liked ? 1 : 0} />
                     <span>{post.likes}</span>
                   </button>
-                  <button className="post-action-btn">
+                  <button 
+                    className={`post-action-btn ${activeCommentsPostId === post.id ? 'active' : ''}`}
+                    onClick={() => setActiveCommentsPostId(activeCommentsPostId === post.id ? null : post.id)}
+                    style={{ color: activeCommentsPostId === post.id ? 'var(--accent-cyan)' : '' }}
+                  >
                     <MessageCircle size={18} />
-                    <span>{post.comments}</span>
+                    <span>{Array.isArray(post.comments) ? post.comments.length : 0}</span>
                   </button>
-                  <button className="post-action-btn">
+                  <button className="post-action-btn" onClick={() => handleSharePost(post)}>
                     <Share2 size={18} />
                   </button>
                   <button
@@ -492,8 +577,74 @@ export default function GymCommunity() {
                     <Bookmark size={18} fill={post.saved ? 'currentColor' : 'none'} />
                   </button>
                 </div>
+
+                {/* Comments Section */}
+                {activeCommentsPostId === post.id && (
+                  <div className="comments-section glass-card animate-slide-up" style={{
+                    marginTop: '1rem',
+                    padding: '1rem',
+                    background: 'rgba(0, 0, 0, 0.25)',
+                    border: '1px solid var(--card-border)',
+                    borderRadius: 'var(--radius-md)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem'
+                  }}>
+                    <h4 style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <MessageCircle size={14} className="text-accent-cyan" />
+                      Faallooyinka ({Array.isArray(post.comments) ? post.comments.length : 0})
+                    </h4>
+
+                    {/* Comments List */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: '200px', overflowY: 'auto', paddingRight: '4px' }}>
+                      {(Array.isArray(post.comments) ? post.comments : []).length === 0 ? (
+                        <p className="text-secondary" style={{ fontSize: '0.8rem', margin: 0, textAlign: 'center', padding: '1rem 0' }}>
+                          Miyayna jirin wax faallo ah? Noqo qofka ugu horreeya!
+                        </p>
+                      ) : (
+                        (post.comments || []).map((comment, cIdx) => (
+                          <div key={comment.id || cIdx} style={{ display: 'flex', gap: '0.625rem', alignItems: 'flex-start', background: 'rgba(255, 255, 255, 0.02)', padding: '0.5rem 0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--card-border)' }}>
+                            <div className="post-avatar" style={{ width: '26px', height: '26px', minWidth: '26px', fontSize: '0.75rem', margin: 0 }}>
+                              {comment.user.avatar}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.35rem', flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-main)' }}>{comment.user.name}</span>
+                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{comment.user.handle}</span>
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-dim)', marginLeft: 'auto' }}>{comment.time}</span>
+                              </div>
+                              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.25rem 0 0', lineHeight: 1.4, wordBreak: 'break-word' }}>
+                                {comment.text}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Comment Input */}
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        className="form-input"
+                        placeholder="Qor faallo..."
+                        value={commentInputs[post.id] || ''}
+                        onChange={e => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
+                        onKeyDown={e => e.key === 'Enter' && handleAddComment(post.id)}
+                        style={{ fontSize: '0.85rem', padding: '0.5rem 0.75rem', flex: 1, background: 'var(--bg-deep)' }}
+                      />
+                      <button 
+                        className="btn btn-primary" 
+                        onClick={() => handleAddComment(post.id)}
+                        disabled={!(commentInputs[post.id]?.trim())}
+                        style={{ padding: '0.5rem 0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        <Send size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            ))}
+            )))}
           </div>
 
           {/* Right Column: Gym Buddies & Streaks Widget */}
@@ -932,6 +1083,31 @@ export default function GymCommunity() {
               onChange={handleImageSelect}
             />
           </div>
+        </div>
+      )}
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="glass-card animate-slide-up" style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          background: 'rgba(3, 10, 22, 0.95)',
+          border: '1px solid var(--accent-cyan)',
+          padding: '0.75rem 1.5rem',
+          borderRadius: 'var(--radius-md)',
+          boxShadow: '0 0 25px rgba(0, 240, 255, 0.25)',
+          zIndex: 99999,
+          color: 'var(--text-main)',
+          fontSize: '0.875rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          backdropFilter: 'blur(10px)',
+          pointerEvents: 'none'
+        }}>
+          <Zap size={16} className="text-accent-cyan" style={{ filter: 'drop-shadow(0 0 4px var(--accent-cyan))' }} />
+          {toastMessage}
         </div>
       )}
     </div>
