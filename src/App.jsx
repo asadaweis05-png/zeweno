@@ -1,5 +1,8 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AppProvider } from './context/AppContext';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { AppProvider, useApp } from './context/AppContext';
+
+// Auth
+import Auth from './pages/Auth';
 
 // VitalFlow
 import Layout from './components/Layout/Layout';
@@ -20,29 +23,53 @@ import FlashCards from './pages/FlashCards';
 
 import NotFound from './pages/NotFound';
 
+function ProtectedRoute() {
+  const { user, authLoading } = useApp();
+
+  if (authLoading) {
+    return (
+      <div className="auth-container">
+        <span className="spinner" style={{ width: '40px', height: '40px', borderWidth: '3px' }}></span>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return <Outlet />;
+}
+
 export default function App() {
   return (
     <AppProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Marketplace />} />
+          {/* Public Auth Route */}
+          <Route path="/auth" element={<Auth />} />
           
-          {/* VitalFlow OS */}
-          <Route path="/vitalflow" element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="calories" element={<Calories />} />
-            <Route path="gym" element={<Gym />} />
-            <Route path="community" element={<GymCommunity />} />
-            <Route path="health" element={<Health />} />
-            <Route path="diet-ai" element={<DietAI />} />
-          </Route>
+          {/* Secure Workspace Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Marketplace />} />
+            
+            {/* VitalFlow OS */}
+            <Route path="/vitalflow" element={<Layout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="calories" element={<Calories />} />
+              <Route path="gym" element={<Gym />} />
+              <Route path="community" element={<GymCommunity />} />
+              <Route path="health" element={<Health />} />
+              <Route path="diet-ai" element={<DietAI />} />
+            </Route>
 
-          {/* StudyFlow OS */}
-          <Route path="/studyflow" element={<StudyLayout />}>
-            <Route index element={<StudyDashboard />} />
-            <Route path="learning" element={<Learning />} />
-            <Route path="notes" element={<Notes />} />
-            <Route path="flashcards" element={<FlashCards />} />
+            {/* StudyFlow OS */}
+            <Route path="/studyflow" element={<StudyLayout />}>
+              <Route index element={<StudyDashboard />} />
+              <Route path="learning" element={<Learning />} />
+              <Route path="notes" element={<Notes />} />
+              <Route path="flashcards" element={<FlashCards />} />
+            </Route>
           </Route>
 
           <Route path="*" element={<NotFound />} />

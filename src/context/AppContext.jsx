@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { loadData, saveData, getTodayKey, generateId } from '../utils/storage';
+import { supabase } from '../lib/supabase';
 
 const AppContext = createContext();
 
@@ -8,6 +9,43 @@ export function useApp() {
 }
 
 export function AppProvider({ children }) {
+  // --- Authentication ---
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+
+    // Listen to changes in auth state
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const signUp = useCallback(async (email, password) => {
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) throw error;
+    return data;
+  }, []);
+
+  const signIn = useCallback(async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
+  }, []);
+
+  const signOut = useCallback(async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  }, []);
+
   // --- User Profile ---
   const [profile, setProfile] = useState(() => loadData('profile', {
     name: '',
@@ -166,6 +204,7 @@ export function AppProvider({ children }) {
   }, []);
 
   const value = {
+    user, authLoading, signIn, signUp, signOut,
     profile, setProfile,
     meals, addMeal, removeMeal, todayMeals, todayCalories, today,
     workouts, logWorkout, todayWorkouts, workoutDates,

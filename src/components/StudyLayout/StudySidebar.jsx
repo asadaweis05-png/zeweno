@@ -1,7 +1,8 @@
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { useApp } from '../../context/AppContext';
 import {
   BookOpen, StickyNote, Brain, ArrowLeft, Sparkles, Zap,
-  GraduationCap
+  GraduationCap, LogOut
 } from 'lucide-react';
 
 const examsUrl = import.meta.env.VITE_EXAMS_URL || 'https://exams.zeweno.com';
@@ -15,6 +16,18 @@ const navItems = [
 ];
 
 export default function StudySidebar() {
+  const { signOut } = useApp();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/auth');
+    } catch (e) {
+      console.error('Failed to log out:', e);
+    }
+  };
+
   return (
     <aside className="sidebar study-sidebar">
       <Link to="/" className="sidebar-link" style={{ margin: '1rem', marginBottom: '0', background: 'var(--bg-deep)' }}>
@@ -66,6 +79,15 @@ export default function StudySidebar() {
           );
         })}
       </nav>
+
+      <button 
+        onClick={handleLogout} 
+        className="sidebar-link sidebar-logout-btn"
+        style={{ margin: '1rem', border: '1px solid var(--card-border)', background: 'transparent' }}
+      >
+        <LogOut size={20} strokeWidth={2} />
+        <span>Ka Bax</span>
+      </button>
 
       <div className="sidebar-footer-badge">
         <Sparkles size={14} />
