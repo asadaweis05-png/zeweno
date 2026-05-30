@@ -86,6 +86,72 @@ export function AppProvider({ children }) {
   const [mealPlans, setMealPlans] = useState(() => loadData('mealPlans', []));
   const [apiKey, setApiKey] = useState(() => loadData('apiKey', ''));
 
+  // --- Community Posts, Buddies, CoStreaks ---
+  const [posts, setPosts] = useState(() => loadData('community_posts', [
+    {
+      id: 'p1',
+      user: { name: 'Alex Rivera', handle: '@alexfitness', avatar: '💪', badge: 'Elite' },
+      time: '2m ago',
+      content: 'PR today! 🏋️ Benched 120kg for the first time. Never stop pushing. The grind doesn\'t lie.',
+      image: null,
+      workout: { type: 'Bench Press', weight: '120kg', sets: 5, reps: 3 },
+      streak: 47,
+      likes: 234,
+      comments: 18,
+      liked: false,
+      saved: false,
+      sharedPartner: null,
+    },
+    {
+      id: 'p2',
+      user: { name: 'Mia Chen', handle: '@miafitlife', avatar: '🔥', badge: 'Warrior' },
+      time: '15m ago',
+      content: 'Morning gym session done before 6am ☀️ Starting the week strong! Who else is grinding early?',
+      image: 'gym-selfie',
+      workout: null,
+      streak: 23,
+      likes: 189,
+      comments: 42,
+      liked: true,
+      saved: true,
+      sharedPartner: { name: 'Alex Rivera', handle: '@alexfitness', avatar: '💪', streak: 47 },
+    },
+    {
+      id: 'p3',
+      user: { name: 'Jordan Blake', handle: '@jordanlifts', avatar: '🦁', badge: 'Beast' },
+      time: '1h ago',
+      content: '5am club checking in 🌅 Leg day is the worst but skipping is not an option. Pain is temporary, gains are forever!',
+      image: null,
+      workout: { type: 'Squat', weight: '140kg', sets: 4, reps: 8 },
+      streak: 92,
+      likes: 412,
+      comments: 67,
+      liked: false,
+      saved: false,
+      sharedPartner: null,
+    },
+    {
+      id: 'p4',
+      user: { name: 'Priya Sharma', handle: '@priyastrong', avatar: '⚡', badge: 'Champion' },
+      time: '3h ago',
+      content: 'Recovery day but still hit the foam roller and mobility work. Progress is a marathon, not a sprint 🧘‍♀️',
+      image: null,
+      workout: null,
+      streak: 61,
+      likes: 156,
+      comments: 23,
+      liked: false,
+      saved: false,
+      sharedPartner: null,
+    },
+  ]));
+
+  const [friends, setFriends] = useState(() => loadData('community_friends', ['@alexfitness', '@miafitlife']));
+  const [coStreaks, setCoStreaks] = useState(() => loadData('community_costreaks', [
+    { handle: '@alexfitness', name: 'Alex Rivera', avatar: '💪', streak: 47 },
+    { handle: '@miafitlife', name: 'Mia Chen', avatar: '🔥', streak: 23 },
+  ]));
+
   // --- Persist to localStorage ---
   useEffect(() => { saveData('profile', profile); }, [profile]);
   useEffect(() => { saveData('meals', meals); }, [meals]);
@@ -100,6 +166,9 @@ export function AppProvider({ children }) {
   useEffect(() => { saveData('flashDecks', flashDecks); }, [flashDecks]);
   useEffect(() => { saveData('mealPlans', mealPlans); }, [mealPlans]);
   useEffect(() => { saveData('apiKey', apiKey); }, [apiKey]);
+  useEffect(() => { saveData('community_posts', posts); }, [posts]);
+  useEffect(() => { saveData('community_friends', friends); }, [friends]);
+  useEffect(() => { saveData('community_costreaks', coStreaks); }, [coStreaks]);
 
   // --- Helpers ---
   const today = getTodayKey();
@@ -220,6 +289,9 @@ export function AppProvider({ children }) {
     flashDecks, addFlashDeck, updateFlashDeck, deleteFlashDeck,
     mealPlans, addMealPlan,
     apiKey, setApiKey,
+    posts, setPosts,
+    friends, setFriends,
+    coStreaks, setCoStreaks,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

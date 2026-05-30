@@ -98,10 +98,18 @@ const GYM_IMAGES = [
 ];
 
 export default function GymCommunity() {
-  const { workoutDates, profile } = useApp();
+  const {
+    workoutDates,
+    profile,
+    posts,
+    setPosts,
+    friends,
+    setFriends,
+    coStreaks,
+    setCoStreaks
+  } = useApp();
   const streak = calculateStreak(workoutDates);
 
-  const [posts, setPosts] = useState(SEED_POSTS);
   const [activeTab, setActiveTab] = useState('feed'); // feed | groups | chat
   const [activeGroup, setActiveGroup] = useState(GROUPS[0]);
   const [showPostModal, setShowPostModal] = useState(false);
@@ -111,13 +119,7 @@ export default function GymCommunity() {
   const [chatMessages, setChatMessages] = useState(CHAT_MSGS);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Custom Friends and Streaks State
-  const [friends, setFriends] = useState(['@alexfitness', '@miafitlife']);
   const [selectedPartner, setSelectedPartner] = useState('');
-  const [coStreaks, setCoStreaks] = useState([
-    { handle: '@alexfitness', name: 'Alex Rivera', avatar: '💪', streak: 47 },
-    { handle: '@miafitlife', name: 'Mia Chen', avatar: '🔥', streak: 23 },
-  ]);
 
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -155,14 +157,15 @@ export default function GymCommunity() {
 
     let partnerInfo = null;
     if (selectedPartner) {
-      // Find buddy from seeded posts or coStreaks
-      const match = SEED_POSTS.find(p => p.user.handle === selectedPartner);
+      // Find buddy from posts or coStreaks
+      const match = posts.find(p => p.user.handle === selectedPartner) || 
+                    coStreaks.find(c => c.handle === selectedPartner);
       if (match) {
         partnerInfo = {
-          name: match.user.name,
-          handle: match.user.handle,
-          avatar: match.user.avatar,
-          streak: match.streak
+          name: match.user?.name || match.name,
+          handle: match.user?.handle || match.handle,
+          avatar: match.user?.avatar || match.avatar,
+          streak: match.streak || match.user?.streak || 1
         };
       }
     }
