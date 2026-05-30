@@ -18,6 +18,9 @@ export function AppProvider({ children }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
+    }).catch(err => {
+      console.error('Failed to get session:', err);
+      setAuthLoading(false);
     });
 
     // Listen to changes in auth state
