@@ -5,7 +5,8 @@ import { calculateStreak } from '../utils/calculations';
 import {
   Flame, Heart, MessageCircle, Share2, Camera, Send, Users,
   Trophy, Image, Plus, X, ChevronRight, Dumbbell, Zap,
-  Hash, Globe, Lock, UserPlus, Search, MoreHorizontal, Bookmark
+  Hash, Globe, Lock, UserPlus, Search, MoreHorizontal, Bookmark,
+  UserCheck, Link2
 } from 'lucide-react';
 
 /* ─── Demo seed data ─── */
@@ -22,6 +23,7 @@ const SEED_POSTS = [
     comments: 18,
     liked: false,
     saved: false,
+    sharedPartner: null,
   },
   {
     id: 'p2',
@@ -35,6 +37,7 @@ const SEED_POSTS = [
     comments: 42,
     liked: true,
     saved: true,
+    sharedPartner: { name: 'Alex Rivera', handle: '@alexfitness', avatar: '💪', streak: 47 },
   },
   {
     id: 'p3',
@@ -48,6 +51,7 @@ const SEED_POSTS = [
     comments: 67,
     liked: false,
     saved: false,
+    sharedPartner: null,
   },
   {
     id: 'p4',
@@ -61,6 +65,7 @@ const SEED_POSTS = [
     comments: 23,
     liked: false,
     saved: false,
+    sharedPartner: null,
   },
 ];
 
@@ -105,6 +110,15 @@ export default function GymCommunity() {
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState(CHAT_MSGS);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Custom Friends and Streaks State
+  const [friends, setFriends] = useState(['@alexfitness', '@miafitlife']);
+  const [selectedPartner, setSelectedPartner] = useState('');
+  const [coStreaks, setCoStreaks] = useState([
+    { handle: '@alexfitness', name: 'Alex Rivera', avatar: '💪', streak: 47 },
+    { handle: '@miafitlife', name: 'Mia Chen', avatar: '🔥', streak: 23 },
+  ]);
+
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -126,8 +140,33 @@ export default function GymCommunity() {
     ));
   }
 
+  function toggleFriend(handle, name, avatar, partnerStreak) {
+    if (friends.includes(handle)) {
+      setFriends(prev => prev.filter(f => f !== handle));
+      setCoStreaks(prev => prev.filter(c => c.handle !== handle));
+    } else {
+      setFriends(prev => [...prev, handle]);
+      setCoStreaks(prev => [...prev, { handle, name, avatar, streak: partnerStreak }]);
+    }
+  }
+
   function handlePost() {
     if (!postText.trim()) return;
+
+    let partnerInfo = null;
+    if (selectedPartner) {
+      // Find buddy from seeded posts or coStreaks
+      const match = SEED_POSTS.find(p => p.user.handle === selectedPartner);
+      if (match) {
+        partnerInfo = {
+          name: match.user.name,
+          handle: match.user.handle,
+          avatar: match.user.avatar,
+          streak: match.streak
+        };
+      }
+    }
+
     const newPost = {
       id: `p${Date.now()}`,
       user: {
@@ -145,10 +184,12 @@ export default function GymCommunity() {
       comments: 0,
       liked: false,
       saved: false,
+      sharedPartner: partnerInfo
     };
     setPosts(p => [newPost, ...p]);
     setPostText('');
     setPostImage(null);
+    setSelectedPartner('');
     setShowPostModal(false);
   }
 
@@ -247,109 +288,234 @@ export default function GymCommunity() {
 
       {/* ── FEED ── */}
       {activeTab === 'feed' && (
-        <div className="community-feed">
-          {/* Search */}
-          <div className="community-search-bar">
-            <Search size={16} className="search-icon-abs" />
-            <input
-              className="form-input community-search-input"
-              placeholder="Search posts, athletes..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
+        <div className="community-grid-layout">
+          {/* Left Column: Post Feed */}
+          <div className="posts-column" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+            {/* Search */}
+            <div className="community-search-bar" style={{ marginBottom: '0.5rem' }}>
+              <Search size={16} className="search-icon-abs" />
+              <input
+                className="form-input community-search-input"
+                placeholder="Search posts, athletes..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            {filteredPosts.map(post => (
+              <div key={post.id} className="community-post glass-card">
+                {/* Post header */}
+                <div className="post-header">
+                  <div className="post-avatar">{post.user.avatar}</div>
+                  <div className="post-user-info">
+                    <div className="post-username">
+                      {post.user.name}
+                      <span
+                        className="post-badge"
+                        style={{ background: BADGE_COLORS[post.user.badge] || 'var(--accent-cyan)' }}
+                      >
+                        {post.user.badge}
+                      </span>
+                    </div>
+                    <div className="post-meta">
+                      {post.user.handle} · {post.time}
+                      {post.streak > 0 && (
+                        <span className="post-streak">
+                          <Flame size={12} /> {post.streak}d
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Add Buddy / Friends Button */}
+                  {post.user.handle !== `@${(profile.name || 'you').toLowerCase().replace(/\s/g, '')}` && (
+                    <button
+                      onClick={() => toggleFriend(post.user.handle, post.user.name, post.user.avatar, post.streak || 1)}
+                      className={`btn btn-sm ${friends.includes(post.user.handle) ? 'btn-secondary' : 'btn-primary'}`}
+                      style={{
+                        padding: '0.35rem 0.65rem',
+                        fontSize: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        marginRight: '0.5rem',
+                        background: friends.includes(post.user.handle) ? 'rgba(0, 240, 255, 0.1)' : '',
+                        borderColor: friends.includes(post.user.handle) ? 'var(--accent-cyan)' : '',
+                        color: friends.includes(post.user.handle) ? 'var(--accent-cyan)' : ''
+                      }}
+                    >
+                      {friends.includes(post.user.handle) ? (
+                        <>
+                          <UserCheck size={13} />
+                          <span>Buddy</span>
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus size={13} />
+                          <span>Add</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  <button className="icon-btn post-more-btn">
+                    <MoreHorizontal size={18} />
+                  </button>
+                </div>
+
+                {/* Shared Streak Partner Banner */}
+                {post.sharedPartner && (
+                  <div
+                    className="glass-card co-streak-banner"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      padding: '0.65rem 1rem',
+                      background: 'linear-gradient(135deg, rgba(0, 240, 255, 0.08), rgba(168, 85, 247, 0.08))',
+                      border: '1px dashed rgba(0, 240, 255, 0.3)',
+                      borderRadius: 'var(--radius-lg)',
+                      marginBottom: '0.875rem'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <div className="post-avatar" style={{ width: '28px', height: '28px', minWidth: '28px', fontSize: '0.85rem', zIndex: 2, margin: 0 }}>{post.user.avatar}</div>
+                      <div className="post-avatar" style={{ width: '28px', height: '28px', minWidth: '28px', fontSize: '0.85rem', marginLeft: '-0.4rem', zIndex: 1, margin: 0, boxShadow: '0 0 8px rgba(168, 85, 247, 0.4)' }}>{post.sharedPartner.avatar}</div>
+                    </div>
+                    <div style={{ flex: 1, fontSize: '0.8rem' }}>
+                      <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>
+                        Co-Streak: {post.user.name.split(' ')[0]} & {post.sharedPartner.name.split(' ')[0]}
+                      </div>
+                      <div className="text-secondary" style={{ fontSize: '0.725rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <Link2 size={11} className="text-accent" /> Shared workout partners • Combined {post.streak + post.sharedPartner.streak} days active!
+                      </div>
+                    </div>
+                    <div className="post-streak" style={{ fontSize: '0.95rem', fontWeight: 800 }}>
+                      <Flame size={14} /> {post.streak + post.sharedPartner.streak}d
+                    </div>
+                  </div>
+                )}
+
+                {/* Content */}
+                <div className="post-content">{post.content}</div>
+
+                {/* Workout badge */}
+                {post.workout && (
+                  <div className="post-workout-tag">
+                    <Dumbbell size={14} />
+                    <span>{post.workout.type}</span>
+                    <span className="badge badge-purple">{post.workout.weight}</span>
+                    <span className="badge badge-cyan">{post.workout.sets}×{post.workout.reps}</span>
+                  </div>
+                )}
+
+                {/* Image placeholder */}
+                {post.image === 'gym-selfie' && (
+                  <div className="post-image-placeholder">
+                    <div
+                      className="post-image-placeholder-inner"
+                      style={{ background: GYM_IMAGES[1].bg }}
+                    >
+                      <span style={{ fontSize: '3rem' }}>{GYM_IMAGES[1].emoji}</span>
+                      <span className="text-muted" style={{ fontSize: '0.8rem' }}>{GYM_IMAGES[1].label}</span>
+                    </div>
+                  </div>
+                )}
+
+                {post.image && post.image !== 'gym-selfie' && (
+                  <div className="post-image-wrapper">
+                    <img src={post.image} alt="gym" className="post-image" />
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="post-actions">
+                  <button
+                    className={`post-action-btn ${post.liked ? 'liked' : ''}`}
+                    onClick={() => handleLike(post.id)}
+                  >
+                    <Heart size={18} fill={post.liked ? 'currentColor' : 'none'} />
+                    <span>{post.likes}</span>
+                  </button>
+                  <button className="post-action-btn">
+                    <MessageCircle size={18} />
+                    <span>{post.comments}</span>
+                  </button>
+                  <button className="post-action-btn">
+                    <Share2 size={18} />
+                  </button>
+                  <button
+                    className={`post-action-btn ml-auto ${post.saved ? 'saved' : ''}`}
+                    onClick={() => handleSave(post.id)}
+                  >
+                    <Bookmark size={18} fill={post.saved ? 'currentColor' : 'none'} />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
 
-          {filteredPosts.map(post => (
-            <div key={post.id} className="community-post glass-card">
-              {/* Post header */}
-              <div className="post-header">
-                <div className="post-avatar">{post.user.avatar}</div>
-                <div className="post-user-info">
-                  <div className="post-username">
-                    {post.user.name}
-                    <span
-                      className="post-badge"
-                      style={{ background: BADGE_COLORS[post.user.badge] || 'var(--accent-cyan)' }}
-                    >
-                      {post.user.badge}
-                    </span>
-                  </div>
-                  <div className="post-meta">
-                    {post.user.handle} · {post.time}
-                    {post.streak > 0 && (
-                      <span className="post-streak">
-                        <Flame size={12} /> {post.streak}d
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <button className="icon-btn post-more-btn">
-                  <MoreHorizontal size={18} />
-                </button>
-              </div>
-
-              {/* Content */}
-              <div className="post-content">{post.content}</div>
-
-              {/* Workout badge */}
-              {post.workout && (
-                <div className="post-workout-tag">
-                  <Dumbbell size={14} />
-                  <span>{post.workout.type}</span>
-                  <span className="badge badge-purple">{post.workout.weight}</span>
-                  <span className="badge badge-cyan">{post.workout.sets}×{post.workout.reps}</span>
-                </div>
-              )}
-
-              {/* Image placeholder */}
-              {post.image === 'gym-selfie' && (
-                <div className="post-image-placeholder">
-                  {GYM_IMAGES.map((img, idx) => (
-                    idx === Math.floor(Math.random() * GYM_IMAGES.length) ? null : null
+          {/* Right Column: Gym Buddies & Streaks Widget */}
+          <div className="buddies-column" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+            {/* Buddies Card */}
+            <div className="glass-card" style={{ padding: '1.25rem' }}>
+              <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Users size={18} className="text-accent" /> Gym Buddies ({friends.length})
+              </h3>
+              {friends.length === 0 ? (
+                <p className="text-muted" style={{ fontSize: '0.825rem', margin: 0, lineHieght: 1.4 }}>
+                  Click "Add" on any athlete's post to add them as your gym buddy!
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {coStreaks.map(buddy => (
+                    <div key={buddy.handle} className="buddy-item animate-slide-up" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div className="buddy-avatar-wrap">
+                        <div className="post-avatar" style={{ width: '34px', height: '34px', minWidth: '34px', fontSize: '0.95rem', margin: 0 }}>{buddy.avatar}</div>
+                        <span className="online-status-dot"></span>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{buddy.name}</div>
+                        <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>{buddy.handle}</div>
+                      </div>
+                      <div className="post-streak" style={{ fontSize: '0.8rem' }}>
+                        <Flame size={12} /> {buddy.streak}d
+                      </div>
+                    </div>
                   ))}
-                  <div
-                    className="post-image-placeholder-inner"
-                    style={{ background: GYM_IMAGES[1].bg }}
-                  >
-                    <span style={{ fontSize: '3rem' }}>{GYM_IMAGES[1].emoji}</span>
-                    <span className="text-muted" style={{ fontSize: '0.8rem' }}>{GYM_IMAGES[1].label}</span>
-                  </div>
                 </div>
               )}
-
-              {post.image && post.image !== 'gym-selfie' && (
-                <div className="post-image-wrapper">
-                  <img src={post.image} alt="gym" className="post-image" />
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="post-actions">
-                <button
-                  className={`post-action-btn ${post.liked ? 'liked' : ''}`}
-                  onClick={() => handleLike(post.id)}
-                >
-                  <Heart size={18} fill={post.liked ? 'currentColor' : 'none'} />
-                  <span>{post.likes}</span>
-                </button>
-                <button className="post-action-btn">
-                  <MessageCircle size={18} />
-                  <span>{post.comments}</span>
-                </button>
-                <button className="post-action-btn">
-                  <Share2 size={18} />
-                </button>
-                <button
-                  className={`post-action-btn ml-auto ${post.saved ? 'saved' : ''}`}
-                  onClick={() => handleSave(post.id)}
-                >
-                  <Bookmark size={18} fill={post.saved ? 'currentColor' : 'none'} />
-                </button>
-              </div>
             </div>
-          ))}
 
-          <AdUnit format="auto" className="ad-page-bottom" />
+            {/* Co-Streaks Card */}
+            <div className="glass-card" style={{ padding: '1.25rem', background: 'linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(168, 85, 247, 0.05))', border: '1px solid rgba(0, 240, 255, 0.15)' }}>
+              <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Flame size={18} style={{ color: 'var(--accent-amber)' }} /> Shared Co-Streaks
+              </h3>
+              {coStreaks.length === 0 ? (
+                <p className="text-muted" style={{ fontSize: '0.825rem', margin: 0 }}>
+                  Share streaks by tagging buddies in your next post!
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                  {coStreaks.map(streakItem => (
+                    <div key={streakItem.handle} className="animate-slide-up" style={{ background: 'rgba(0, 0, 0, 0.25)', padding: '0.65rem 0.85rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(0, 240, 255, 0.1)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 700, marginBottom: '0.25rem' }}>
+                        <span>You & {streakItem.name.split(' ')[0]}</span>
+                        <span style={{ color: 'var(--accent-cyan)', display: 'flex', alignItems: 'center', gap: '2px' }}>🔗 Linked</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span className="text-secondary" style={{ fontSize: '0.65rem' }}>Combined Streak</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-amber)' }}>
+                          <Flame size={12} /> {streak + streakItem.streak} Days
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -527,11 +693,31 @@ export default function GymCommunity() {
 
             {/* Streak auto-share */}
             {streak > 0 && (
-              <div className="streak-share-badge">
+              <div className="streak-share-badge" style={{ marginBottom: '0.75rem' }}>
                 <Flame size={16} style={{ color: 'var(--accent-amber)' }} />
                 <span>Auto-attaching your <strong>{streak}-day streak</strong> badge 🏆</span>
               </div>
             )}
+
+            {/* Buddy Partner Selector */}
+            <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '0.35rem' }}>
+                Workout Partner (Co-Streak)
+              </label>
+              <select
+                className="form-input"
+                style={{ width: '100%', padding: '0.65rem 1rem', background: 'var(--bg-card)', border: '1px solid var(--card-border)', borderRadius: 'var(--radius-md)', color: 'var(--text-main)', fontSize: '0.85rem' }}
+                value={selectedPartner}
+                onChange={e => setSelectedPartner(e.target.value)}
+              >
+                <option value="">None (Train alone)</option>
+                {coStreaks.map(buddy => (
+                  <option key={buddy.handle} value={buddy.handle}>
+                    {buddy.avatar} {buddy.name} ({buddy.streak}d streak)
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <div className="post-modal-actions">
               <div className="post-modal-media">
