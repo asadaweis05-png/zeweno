@@ -89,12 +89,9 @@ export default function Marketplace() {
               iyo wax-soo-saarkaaga adoo adeegsanaya nidaamkayaga app-yada ee modular-ka ah.
             </p>
             <div className="hero-actions">
-              <button className="btn btn-primary btn-lg" onClick={() => navigate('/vitalflow')}>
-                Bilow VitalFlow
-              </button>
-              <button className="btn btn-secondary btn-lg">
-                Sahami Nidaamka
-              </button>
+              <button className="btn btn-primary btn-lg" onClick={() => navigate('/vitalflow')}>Bilow VitalFlow</button>
+              <button className="btn btn-secondary btn-lg" onClick={() => window.location.href = 'https://exams-umber-eight.vercel.app/'}>Exams</button>
+              <button className="btn btn-secondary btn-lg">Sahami Nidaamka</button>
             </div>
           </div>
           

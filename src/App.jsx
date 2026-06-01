@@ -48,10 +48,10 @@ export default function App() {
         <Routes>
           {/* Public Auth Route */}
           <Route path="/auth" element={<Auth />} />
+          <Route path="/" element={<Marketplace />} />
           
           {/* Secure Workspace Routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Marketplace />} />
             
             {/* VitalFlow OS */}
             <Route path="/vitalflow" element={<Layout />}>
