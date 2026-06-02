@@ -84,7 +84,7 @@ export function AppProvider({ children }) {
 
   // --- Diet AI ---
   const [mealPlans, setMealPlans] = useState(() => loadData('mealPlans', []));
-  const [apiKey, setApiKey] = useState(() => loadData('apiKey', ''));
+
 
   // --- Community Posts, Buddies, CoStreaks ---
   const [posts, setPosts] = useState(() => loadData('community_posts', []));
@@ -105,7 +105,7 @@ export function AppProvider({ children }) {
   useEffect(() => { saveData('notes', notes); }, [notes]);
   useEffect(() => { saveData('flashDecks', flashDecks); }, [flashDecks]);
   useEffect(() => { saveData('mealPlans', mealPlans); }, [mealPlans]);
-  useEffect(() => { saveData('apiKey', apiKey); }, [apiKey]);
+
   useEffect(() => { saveData('community_posts', posts); }, [posts]);
   useEffect(() => { saveData('community_friends', friends); }, [friends]);
   useEffect(() => { saveData('community_costreaks', coStreaks); }, [coStreaks]);
@@ -228,7 +228,7 @@ export function AppProvider({ children }) {
     notes, addNote, updateNote, deleteNote,
     flashDecks, addFlashDeck, updateFlashDeck, deleteFlashDeck,
     mealPlans, addMealPlan,
-    apiKey, setApiKey,
+
     posts, setPosts,
     friends, setFriends,
     coStreaks, setCoStreaks,

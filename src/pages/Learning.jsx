@@ -6,9 +6,10 @@ import {
 } from 'lucide-react';
 import Modal from '../components/common/Modal';
 import AdUnit from '../components/common/AdUnit';
+import { getGeminiUrl } from '../lib/gemini';
 
 export default function Learning() {
-  const { savedContent, addContent, removeContent, updateContent, apiKey } = useApp();
+  const { savedContent, addContent, removeContent, updateContent } = useApp();
   const [showAdd, setShowAdd] = useState(false);
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
@@ -39,16 +40,12 @@ export default function Learning() {
   }
 
   async function handleSummarize(item) {
-    if (!apiKey) {
-      alert('Please add your Gemini API key in the AI Diet Plan page to use summarization.');
-      return;
-    }
     setSummarizing(item.id);
     try {
       const prompt = `Summarize the content from this link in a clear, concise way with key takeaways. Title: "${item.title}". URL: ${item.url}. ${item.notes ? `Additional notes: ${item.notes}` : ''} Give me a structured summary with: 1) Main Topic 2) Key Points (bullet points) 3) Takeaways`;
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        getGeminiUrl(),
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

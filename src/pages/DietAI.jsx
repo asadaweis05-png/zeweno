@@ -8,9 +8,10 @@ import Modal from '../components/common/Modal';
 import AdUnit from '../components/common/AdUnit';
 import { calculateBMR, calculateTDEE, calculateMacros } from '../utils/calculations';
 import { DIETARY_PREFERENCES, FITNESS_GOALS } from '../utils/constants';
+import { getGeminiUrl } from '../lib/gemini';
 
 export default function DietAI() {
-  const { profile, setProfile, apiKey, setApiKey, mealPlans, addMealPlan } = useApp();
+  const { profile, setProfile, mealPlans, addMealPlan } = useApp();
   const [showSettings, setShowSettings] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [expanded, setExpanded] = useState(null);
@@ -22,11 +23,6 @@ export default function DietAI() {
   const macros = calculateMacros(calorieGoal, profile.goal);
 
   async function generatePlan() {
-    if (!apiKey) {
-      setShowSettings(true);
-      return;
-    }
-
     setGenerating(true);
     try {
       const goalLabel = FITNESS_GOALS.find(g => g.value === profile.goal)?.label || 'Maintain Weight';
@@ -58,7 +54,7 @@ Format the response as a JSON object with this exact structure:
 Only respond with valid JSON, no markdown or other text.`;
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        getGeminiUrl(),
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -286,17 +282,6 @@ Only respond with valid JSON, no markdown or other text.`;
 
       {/* Settings Modal */}
       <Modal isOpen={showSettings} onClose={() => setShowSettings(false)} title="AI Settings">
-        <div className="form-group">
-          <label className="form-label">Gemini API Key</label>
-          <input className="form-input" type="password" placeholder="Enter your Gemini API key..."
-            value={apiKey} onChange={e => setApiKey(e.target.value)} />
-          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Get your free API key from{' '}
-            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">
-              Google AI Studio
-            </a>
-          </p>
-        </div>
         <div className="form-group">
           <label className="form-label">Your Name</label>
           <input className="form-input" placeholder="Enter your name" value={profile.name}

@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { 
   Flame, Plus, Trash2, Search, Calculator, Sparkles, 
-  Camera, Upload, Eye, RefreshCw, Key, Shield, HelpCircle, 
+  Camera, Upload, Eye, RefreshCw, 
   Edit3, Check, Barcode, FileText, ArrowRight, User
 } from 'lucide-react';
 import ProgressRing from '../components/common/ProgressRing';
@@ -10,6 +10,7 @@ import Modal from '../components/common/Modal';
 import AdUnit from '../components/common/AdUnit';
 import { calculateBMR, calculateTDEE, calculateMacros } from '../utils/calculations';
 import { COMMON_FOODS, ACTIVITY_LEVELS } from '../utils/constants';
+import { getGeminiUrl } from '../lib/gemini';
 
 // Unsplash high quality food images for instant sample testing
 const SAMPLE_FOODS = [
@@ -69,14 +70,11 @@ const MOCK_BARCODES = {
 
 export default function Calories() {
   const { 
-    profile, setProfile, addMeal, removeMeal, todayMeals, todayCalories,
-    apiKey, setApiKey 
+    profile, setProfile, addMeal, removeMeal, todayMeals, todayCalories 
   } = useApp();
 
   const [activeTab, setActiveTab] = useState('text'); // 'text' | 'image' | 'barcode'
   const [showCalc, setShowCalc] = useState(false);
-  const [showKeyModal, setShowKeyModal] = useState(false);
-  const [keyInput, setKeyInput] = useState(apiKey || '');
   
   // Text tracking state
   const [textQuery, setTextQuery] = useState('');
@@ -178,46 +176,40 @@ export default function Calories() {
     setTextLoading(true);
     setParsedItems([]);
 
-    if (apiKey) {
-      try {
-        const prompt = `Analyze this food description: "${textQuery}". Identify each food item, estimate portion sizes, and calculate calories, protein (g), carbs (g), and fat (g). Return the response strictly as valid JSON matching this schema:
-        {
-          "meals": [
-            { "name": "food item name", "calories": 150, "protein": 10, "carbs": 20, "fat": 5 }
-          ]
-        }
-        Only output the JSON object, no explanations or markdown headers.`;
-
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: { 
-                temperature: 0.2,
-                responseMimeType: 'application/json'
-              },
-            }),
-          }
-        );
-        const data = await res.json();
-        let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-        text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        const parsed = JSON.parse(text);
-        if (parsed && parsed.meals) {
-          setParsedItems(parsed.meals);
-        } else {
-          throw new Error("Invalid format");
-        }
-      } catch (err) {
-        console.error("Gemini failed, falling back to simulated parser:", err);
-        setParsedItems(simulateTextParsing(textQuery));
+    try {
+      const prompt = `Analyze this food description: "${textQuery}". Identify each food item, estimate portion sizes, and calculate calories, protein (g), carbs (g), and fat (g). Return the response strictly as valid JSON matching this schema:
+      {
+        "meals": [
+          { "name": "food item name", "calories": 150, "protein": 10, "carbs": 20, "fat": 5 }
+        ]
       }
-    } else {
-      // Simulate network delay for premium feel
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      Only output the JSON object, no explanations or markdown headers.`;
+
+      const res = await fetch(
+        getGeminiUrl(),
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { 
+              temperature: 0.2,
+              responseMimeType: 'application/json'
+            },
+          }),
+        }
+      );
+      const data = await res.json();
+      let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const parsed = JSON.parse(text);
+      if (parsed && parsed.meals) {
+        setParsedItems(parsed.meals);
+      } else {
+        throw new Error("Invalid format");
+      }
+    } catch (err) {
+      console.error("Gemini failed, falling back to simulated parser:", err);
       setParsedItems(simulateTextParsing(textQuery));
     }
     setTextLoading(false);
@@ -235,7 +227,7 @@ export default function Calories() {
       Only output the JSON object, no explanations or markdown headers.`;
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        getGeminiUrl(),
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -332,23 +324,15 @@ export default function Calories() {
       const base64Data = reader.result.split(',')[1];
       const mimeType = file.type;
       
-      if (apiKey) {
-        try {
-          const meals = await analyzeImage(base64Data, mimeType);
-          setParsedItems(meals);
-        } catch (err) {
-          console.error("Gemini Image Parsing failed, fallback to mock scan:", err);
-          // Fallback mock scan
-          await new Promise(r => r(setTimeout(() => {}, 1500)));
-          setParsedItems([
-            { name: "Scanned Food (AI Estimate)", calories: 480, protein: 24, carbs: 42, fat: 16 }
-          ]);
-        }
-      } else {
-        // Mock scan animation delay
-        await new Promise(resolve => setTimeout(resolve, 2500));
+      try {
+        const meals = await analyzeImage(base64Data, mimeType);
+        setParsedItems(meals);
+      } catch (err) {
+        console.error("Gemini Image Parsing failed, fallback to mock scan:", err);
+        // Fallback mock scan
+        await new Promise(r => setTimeout(r, 1500));
         setParsedItems([
-          { name: "Scanned Salad & Chicken Bowl", calories: 420, protein: 32, carbs: 15, fat: 14 }
+          { name: "Scanned Food (AI Estimate)", calories: 480, protein: 24, carbs: 42, fat: 16 }
         ]);
       }
       setImageLoading(false);
@@ -405,54 +389,46 @@ export default function Calories() {
       const base64Data = reader.result.split(',')[1];
       const mimeType = file.type;
 
-      if (apiKey) {
-        try {
-          const prompt = `This image is a photo of a nutrition facts label. Extract the nutritional values per serving. Extract: calories, protein (g), carbs (g), and fat (g). Return the response strictly as valid JSON matching this schema:
-          {
-            "meals": [
-              { "name": "Extracted Label Food Product", "calories": 200, "protein": 12, "carbs": 24, "fat": 6 }
-            ]
-          }
-          Only output the JSON object, no explanations or markdown headers.`;
-
-          const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [
-                  {
-                    parts: [
-                      { text: prompt },
-                      { inlineData: { mimeType, data: base64Data } }
-                    ]
-                  }
-                ],
-                generationConfig: { 
-                  temperature: 0.2,
-                  responseMimeType: 'application/json'
-                },
-              }),
-            }
-          );
-          const data = await res.json();
-          let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-          const parsed = JSON.parse(text);
-          setParsedItems(parsed.meals || []);
-        } catch (err) {
-          console.error("Gemini OCR failed, fallback to mock label parse:", err);
-          await new Promise(r => setTimeout(r, 1500));
-          setParsedItems([
-            { name: "Nutrition Label Extracted Item", calories: 250, protein: 18, carbs: 30, fat: 6 }
-          ]);
+      try {
+        const prompt = `This image is a photo of a nutrition facts label. Extract the nutritional values per serving. Extract: calories, protein (g), carbs (g), and fat (g). Return the response strictly as valid JSON matching this schema:
+        {
+          "meals": [
+            { "name": "Extracted Label Food Product", "calories": 200, "protein": 12, "carbs": 24, "fat": 6 }
+          ]
         }
-      } else {
-        // Mock label parse delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        Only output the JSON object, no explanations or markdown headers.`;
+
+        const res = await fetch(
+          getGeminiUrl(),
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { text: prompt },
+                    { inlineData: { mimeType, data: base64Data } }
+                  ]
+                }
+              ],
+              generationConfig: { 
+                temperature: 0.2,
+                responseMimeType: 'application/json'
+              },
+            }),
+          }
+        );
+        const data = await res.json();
+        let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        const parsed = JSON.parse(text);
+        setParsedItems(parsed.meals || []);
+      } catch (err) {
+        console.error("Gemini OCR failed, fallback to mock label parse:", err);
+        await new Promise(r => setTimeout(r, 1500));
         setParsedItems([
-          { name: "Energy Bar (Label OCR Scan)", calories: 210, protein: 15, carbs: 24, fat: 7 }
+          { name: "Nutrition Label Extracted Item", calories: 250, protein: 18, carbs: 30, fat: 6 }
         ]);
       }
       setScanLoading(false);
@@ -506,11 +482,7 @@ export default function Calories() {
     setLabelImageFile(null);
   }
 
-  // API Key Saving
-  function handleSaveApiKey() {
-    setApiKey(keyInput.trim());
-    setShowKeyModal(false);
-  }
+
 
   const macroBars = [
     { label: 'Protein', current: consumed.protein, goal: macros.protein, unit: 'g', color: 'var(--accent-purple)' },
@@ -527,26 +499,16 @@ export default function Calories() {
           <p className="text-secondary">Capture your nutrients at lightspeed using text, photos, and scans.</p>
         </div>
         
-        {/* Gemini API and Mode Details */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
             <button className="btn btn-secondary btn-sm" onClick={() => setShowCalc(true)}>
               <Calculator size={15} /> TDEE Setup
             </button>
-            <button 
-              className={`api-badge ${apiKey ? 'connected' : 'simulated'}`} 
-              onClick={() => { setKeyInput(apiKey); setShowKeyModal(true); }}
-              style={{ cursor: 'pointer' }}
-            >
-              <Key size={12} />
-              {apiKey ? 'API Active' : 'Simulation Mode'}
-            </button>
-          </div>
-          {!apiKey && (
-            <span style={{ fontSize: '0.72rem', color: 'var(--accent-amber)', maxWidth: '280px', textAlign: 'right' }}>
-              💡 Enter a free <strong style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={() => setShowKeyModal(true)}>Gemini API Key</strong> to activate live image recognition.
+            <span className="api-badge connected" style={{ cursor: 'default' }}>
+              <Sparkles size={12} />
+              AI Powered
             </span>
-          )}
+          </div>
         </div>
       </div>
 
@@ -1033,43 +995,7 @@ export default function Calories() {
 
       <AdUnit format="horizontal" className="ad-page-bottom" />
 
-      {/* Gemini API Key setup Modal */}
-      <Modal isOpen={showKeyModal} onClose={() => setShowKeyModal(false)} title="Gemini Connection Settings">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center', background: 'rgba(0, 240, 255, 0.05)', border: '1px solid rgba(0, 240, 255, 0.15)', padding: '12px', borderRadius: 'var(--radius-md)' }}>
-            <Shield size={20} style={{ color: 'var(--accent-cyan)', flexShrink: 0 }} />
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: 0 }}>
-              Your API key is stored locally in your browser. It is sent directly to Google's endpoints and is never uploaded to any external server.
-            </p>
-          </div>
-          
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label">Google Gemini API Key</label>
-            <input 
-              className="form-input" 
-              type="password" 
-              placeholder="Paste your Gemini API key..." 
-              value={keyInput} 
-              onChange={e => setKeyInput(e.target.value)}
-            />
-            <p style={{ fontSize: '0.72rem', color: 'var(--text-dim)', marginTop: '4px' }}>
-              Create a free key in seconds at{' '}
-              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-cyan)', textDecoration: 'underline' }}>
-                Google AI Studio
-              </a>.
-            </p>
-          </div>
 
-          <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-            <button className="btn btn-secondary w-full" onClick={() => { setKeyInput(''); setApiKey(''); setShowKeyModal(false); }}>
-              Clear Key
-            </button>
-            <button className="btn btn-primary w-full" onClick={handleSaveApiKey} style={{ background: 'var(--gradient-primary)' }}>
-              Connect API Key
-            </button>
-          </div>
-        </div>
-      </Modal>
 
       {/* TDEE Calculator Modal */}
       <Modal isOpen={showCalc} onClose={() => setShowCalc(false)} title="TDEE Telemetry Calibration">
