@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
+import { Analytics } from '@vercel/analytics/react';
 
 // Auth
 import Auth from './pages/Auth';
@@ -75,6 +76,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
-    </AppProvider>
+        <Analytics />
+  </AppProvider>
   );
 }
