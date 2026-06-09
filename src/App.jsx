@@ -25,7 +25,7 @@ import FlashCards from './pages/FlashCards';
 import NotFound from './pages/NotFound';
 
 function ProtectedRoute() {
-  const { user, authLoading } = useApp();
+  const { user, authLoading, signOut } = useApp();
 
   if (authLoading) {
     return (
@@ -39,7 +39,52 @@ function ProtectedRoute() {
     return <Navigate to="/auth" replace />;
   }
 
-  return <Outlet />;
+  // Lock Screen for all authenticated users
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center', 
+      justifyContent: 'center', height: '100vh', 
+      backgroundColor: '#0a0a0a', color: 'white', textAlign: 'center', padding: '20px'
+    }}>
+      <div style={{ 
+        maxWidth: '500px', width: '100%', background: '#1a1a1a', 
+        padding: '40px 30px', borderRadius: '16px', 
+        boxShadow: '0 4px 20px rgba(0,0,0,0.5)', border: '1px solid #333'
+      }}>
+        <div style={{ fontSize: '48px', marginBottom: '20px' }}>🔒</div>
+        <h1 style={{ marginBottom: '20px', fontSize: '24px', fontWeight: 'bold' }}>Account Pending</h1>
+        <p style={{ marginBottom: '30px', fontSize: '18px', lineHeight: '1.6', color: '#e0e0e0' }}>
+          websiteka maalin kadib ayaa lafasixi doona si aad updates ula socoto kusoo biir telegram channelkan
+        </p>
+        <a 
+          href="https://t.me/zeweno" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            padding: '14px 28px', backgroundColor: '#0088cc', color: 'white', 
+            textDecoration: 'none', borderRadius: '8px', 
+            fontWeight: 'bold', fontSize: '16px', marginBottom: '24px',
+            width: '100%', boxSizing: 'border-box',
+            transition: 'background 0.2s'
+          }}
+        >
+          Join Telegram Channel
+        </a>
+        <div>
+          <button 
+            onClick={() => signOut()}
+            style={{
+              background: 'none', border: 'none', color: '#888', 
+              textDecoration: 'underline', cursor: 'pointer', fontSize: '14px'
+            }}
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function App() {
