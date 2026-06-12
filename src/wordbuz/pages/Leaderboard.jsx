@@ -1,10 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { Trophy, Flame, Star, TrendingUp } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useEffect, useState } from 'react';
+import { Trophy, Flame, Star, TrendingUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Leaderboard = () => {
-  const [activeTab, setActiveTab] = useState('points');
+  const [dailyWinners, setDailyWinners] = useState([]);
+
+  useEffect(() => {
+    const fetchWinners = async () => {
+      const { data, error } = await supabase
+        .from('puzzle_winners')
+        .select('email, avatar')
+        .eq('approved', true)
+        .order('won_at', { ascending: false })
+        .limit(10);
+      if (error) {
+        console.error('Error fetching winners:', error);
+      } else {
+        setDailyWinners(data);
+      }
+    };
+    fetchWinners();
+  }, []);
+
   const { userProfile } = useAuth();
   const [leaderboardData, setLeaderboardData] = useState({ points: [], streaks: [] });
   const [userRank, setUserRank] = useState({ pointsRank: 1, streaksRank: 1, total: 1 });
@@ -56,7 +74,8 @@ const Leaderboard = () => {
     fetchLeaderboard();
   }, [userProfile]);
 
-  const currentData = leaderboardData[activeTab];
+  const [activeTab, setActiveTab] = useState('points');
+  const currentData = activeTab === 'points' ? leaderboardData.points : leaderboardData.streaks;
   const activeRank = activeTab === 'points' ? userRank.pointsRank : userRank.streaksRank;
 
   return (
@@ -67,18 +86,16 @@ const Leaderboard = () => {
       </div>
 
       <div className="tabs mb-xl" style={{ maxWidth: '400px', margin: '0 auto 2rem' }}>
-        {[
-          { id: 'points', label: 'Dhibcaha', icon: <Star size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} /> },
-          { id: 'streaks', label: 'Joogtaynta', icon: <Flame size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} /> }
-        ].map((tab) => (
-          <button 
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`tab ${activeTab === tab.id ? 'active' : ''}`}
-          >
-            {tab.icon} {tab.label}
-          </button>
-        ))}
+          {['points', 'streaks'].map((tab) => (
+            <button 
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`tab ${activeTab === tab ? 'active' : ''}`}
+            >
+              {tab === 'points' ? <Star size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} /> : <Flame size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} />}
+              {tab === 'points' ? 'Dhibcaha' : 'Joogtaynta'}
+            </button>
+          ))}
       </div>
 
       {loading ? (
@@ -124,7 +141,22 @@ const Leaderboard = () => {
             </div>
           ))}
 
-          {userProfile && (
+          {dailyWinners.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-center mb-2">Daily Puzzle Winners</h3>
+            <div className="flex flex-wrap justify-center gap-2">
+              {dailyWinners.map((winner, idx) => (
+                <div key={idx} className="flex items-center gap-2 bg-glass p-2 rounded">
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white">
+                    {winner.email ? winner.email.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <div className="text-sm">{winner.email}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
             <div style={{ padding: '1.5rem', background: 'rgba(0, 240, 255, 0.05)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--gradient-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.25rem' }}>
                 {userProfile.username?.charAt(0).toUpperCase() || 'Y'}

@@ -17,6 +17,7 @@ const Sidebar = () => {
     { to: '/wordbuz/daily', icon: Zap, label: 'Maalinle' },
     { to: '/wordbuz/free-play', icon: Play, label: 'Xor ah' },
     { to: '/wordbuz/leaderboard', icon: Trophy, label: 'Hogaanka' },
+    { to: '/admin/winners', icon: Trophy, label: 'Admin' },
     { to: '/wordbuz/profile', icon: User, label: 'Profile' },
   ];
 

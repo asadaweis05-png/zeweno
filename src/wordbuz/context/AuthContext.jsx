@@ -43,6 +43,8 @@ export const AuthProvider = ({ children }) => {
         // Create profile if it doesn't exist
         const newProfile = {
           uid,
+          email: user?.email,
+          balance: 0,
           username: user?.user_metadata?.full_name || 'PuzzleMaster',
           points: 0,
           streak: 0,
@@ -156,14 +158,44 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user, userProfile]);
 
-  const value = {
+  // New helper to award daily cash prize (balance) if user is first winner
+  const awardDailyPrize = async (puzzleId) => {
+    if (!user || !userProfile) return false;
+    try {
+      // Attempt to insert winner record; will fail if already exists due to unique constraint
+      const { data: winner, error: insertErr } = await supabase
+        .from('puzzle_winners')
+        .insert([{ puzzle_id: puzzleId, user_id: user.id, email: user.email, approved: false }])
+        .single();
+      if (insertErr) {
+        // Probably already a winner
+        console.log('Daily prize already claimed');
+        return false;
+      }
+      // Add $2 to balance
+      const { error: balErr } = await supabase
+        .from('users')
+        .update({ balance: (userProfile.balance || 0) + 2 })
+        .eq('uid', user.id);
+      if (balErr) {
+        console.error('Error updating balance:', balErr);
+      }
+      // Optimistic UI update for balance
+      setUserProfile(prev => ({ ...prev, balance: (prev.balance || 0) + 2 }));
+      return true;
+    } catch (e) {
+      console.error('Award prize error:', e);
+      return false;
+    }
+  };
     user,
     userProfile,
     loading: loading || authLoading,
     login,
     signup,
     logout,
-    recordPuzzleResult
+    recordPuzzleResult,
+    awardDailyPrize
   };
 
   return (
