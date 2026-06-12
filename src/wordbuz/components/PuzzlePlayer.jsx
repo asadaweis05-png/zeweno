@@ -1,11 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePuzzles } from '../context/PuzzleContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Lightbulb, AlertCircle, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Send, Lightbulb, AlertCircle, CheckCircle2, Play } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 const PuzzlePlayer = () => {
   const { activePuzzle, submitAnswer, feedback, attempts, isSolved } = usePuzzles();
   const [answer, setAnswer] = useState('');
+
+  useEffect(() => {
+    if (isSolved) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#00f0ff', '#bd00ff', '#39ff14']
+      });
+    }
+  }, [isSolved]);
 
   if (!activePuzzle) return null;
 
@@ -17,106 +28,83 @@ const PuzzlePlayer = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className="glass-card animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto', padding: '3rem' }}>
       {/* Meta Header */}
-      <div className="flex justify-between items-center px-1">
-        <div className="flex items-center gap-3">
-          <span className={`px-3 py-1 rounded-md text-xs font-bold uppercase ${
-            activePuzzle.difficulty === 'Fudud' ? 'bg-emerald-100 text-emerald-700' :
-            activePuzzle.difficulty === 'Dhexdhexaad' ? 'bg-blue-100 text-blue-700' :
-            'bg-rose-100 text-rose-700'
+      <div className="flex-between mb-lg">
+        <div className="flex" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <span className={`badge ${
+            activePuzzle.difficulty === 'Fudud' ? 'badge-green' :
+            activePuzzle.difficulty === 'Dhexdhexaad' ? 'badge-blue' :
+            'badge-red'
           }`}>
             {activePuzzle.difficulty}
           </span>
-          <span className="text-slate-700 text-xs font-semibold uppercase">
-            Nooca: {activePuzzle.type}
+          <span className="text-secondary text-sm font-bold uppercase">
+            Nooca: <span className="text-main">{activePuzzle.type}</span>
           </span>
         </div>
-        <div className="text-slate-700 text-xs font-bold bg-slate-100 px-3 py-1 rounded-md">
+        <div className="badge" style={{ background: 'var(--bg-deep)', border: '1px solid var(--card-border)' }}>
           ISKU DAY: {attempts + 1}
         </div>
       </div>
 
-      {/* Puzzle Card */}
-      <div className="clean-card relative overflow-hidden flex flex-col items-center justify-center text-center space-y-6 min-h-[250px] bg-slate-50">
-        
-        {/* Success Icon */}
-        <AnimatePresence>
-          {isSolved && (
-            <motion.div 
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="absolute top-4 right-4 text-brand-500"
-            >
-              <CheckCircle2 size={32} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 leading-tight">
+      {/* Puzzle Question */}
+      <div className="mb-xl text-center py-lg">
+        <h2 style={{ fontSize: '2.5rem', lineHeight: '1.2' }}>
           {activePuzzle.question}
         </h2>
-
-        {/* Feedback Alert */}
-        <AnimatePresence>
-          {feedback && feedback.type === 'error' && (
-            <motion.div
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -5 }}
-              className="px-4 py-2 bg-red-50 text-red-600 rounded-md text-sm font-medium flex items-center gap-2 border border-red-100"
-            >
-              <AlertCircle size={16} />
-              {feedback.message}
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       {/* Input / Post-Solve Actions */}
-      <div className="space-y-4">
+      <div style={{ position: 'relative' }}>
         {!isSolved ? (
-          <form onSubmit={handleSubmit} className="relative">
+          <form onSubmit={handleSubmit} style={{ position: 'relative' }}>
             <input
               type="text"
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               placeholder="Geli jawaabtaada..."
-              className="input-field text-lg pr-16"
+              className="form-input"
               autoComplete="off"
+              autoFocus
             />
             <button
               type="submit"
-              className="absolute right-2 top-2 bottom-2 aspect-square bg-brand-600 hover:bg-brand-700 text-white rounded-md flex items-center justify-center transition-colors"
+              className="btn btn-primary"
+              style={{ position: 'absolute', right: '0.5rem', top: '0.5rem', bottom: '0.5rem', padding: '0 1.5rem', borderRadius: 'calc(var(--radius-lg) - 0.25rem)' }}
             >
-              <Send size={20} />
+              <Send size={24} />
             </button>
+
+            {/* Error Feedback */}
+            {feedback && feedback.type === 'error' && (
+              <div className="mt-md" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--accent-red)', fontSize: '0.875rem', fontWeight: '600' }}>
+                <AlertCircle size={16} />
+                {feedback.message}
+              </div>
+            )}
           </form>
         ) : (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="clean-card bg-brand-50 border-brand-200 p-6"
-          >
-            <div className="flex items-center gap-2 text-brand-700 font-bold mb-2">
-              <CheckCircle2 size={20} />
+          <div style={{ background: 'rgba(57, 255, 20, 0.1)', border: '1px solid var(--accent-green)', padding: '2rem', borderRadius: 'var(--radius-lg)', textAlign: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', color: 'var(--accent-green)', fontWeight: '800', fontSize: '1.5rem', marginBottom: '1rem' }}>
+              <CheckCircle2 size={32} />
               Waa Xalisay!
             </div>
-            <p className="text-slate-700">
-              <span className="font-semibold">Sharaxaad:</span> {activePuzzle.explanation}
+            <p className="text-secondary text-lg">
+              <span className="text-main font-bold">Sharaxaad:</span> {activePuzzle.explanation}
             </p>
-          </motion.div>
+          </div>
         )}
 
         {/* Footer Actions */}
-        <div className="flex gap-3">
-          <button className="flex-1 btn-secondary" onClick={() => alert('Caawinaad ayaa la diyaarinayaa...')}>
-            <Lightbulb size={18} />
+        <div className="mt-lg" style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
+          <button type="button" className="btn btn-secondary w-full" style={{ padding: '1rem' }} onClick={() => alert('Caawinaad ayaa la diyaarinayaa...')}>
+            <Lightbulb size={20} className="text-accent-amber" style={{ marginRight: '0.5rem' }} />
             Caawinaad Hel
           </button>
           {isSolved && (
-            <button className="flex-[2] btn-primary" onClick={() => window.location.reload()}>
-              Sii Wado Tartanka <ChevronRight size={18} />
+            <button type="button" className="btn btn-primary w-full" style={{ padding: '1rem', background: 'var(--gradient-success)' }} onClick={() => window.location.reload()}>
+              Sii Wado Tartanka <Play size={20} style={{ marginLeft: '0.5rem' }} />
             </button>
           )}
         </div>

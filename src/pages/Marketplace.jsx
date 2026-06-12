@@ -33,6 +33,17 @@ export default function Marketplace() {
       tag: 'Rakiban',
       featured: true 
     },
+    { 
+      id: 'wb', 
+      to: '/wordbuz', 
+      icon: Sparkles, 
+      title: 'WordBuz OS', 
+      dev: 'Zeweno Systems', 
+      desc: 'Ciyaar xujooyin erayo ah oo madadaalo leh. Tijaabi garaadkaaga, baro erayo cusub, oo maskaxdaada ka shaqeysii.', 
+      color: 'amber', 
+      tag: 'Rakiban',
+      featured: true 
+    },
   ];
 
   const upcomingApps = [

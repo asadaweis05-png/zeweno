@@ -1,131 +1,61 @@
-import React, { useEffect } from 'react';
-import { usePuzzles } from '../context/PuzzleContext';
+import React from 'react';
+import { Trophy, Clock, Users, Star, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import PuzzlePlayer from '../components/PuzzlePlayer';
-import AdUnit from '../components/AdUnit';
-import { Trophy, Users, Zap, Share2, Star, CheckCircle2 } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { usePuzzles } from '../context/PuzzleContext';
+import PageCard from '../components/PageCard';
 
 const DailyChallenge = () => {
-  const { startPuzzle, isSolved } = usePuzzles();
-  const { userProfile } = useAuth();
+  const { user } = useAuth();
+  const { isSolved } = usePuzzles();
 
-  useEffect(() => {
-    const loadDailyPuzzle = async () => {
-      const todayId = 'daily-' + new Date().toISOString().split('T')[0];
-      try {
-        const { data, error } = await supabase
-          .from('puzzles')
-          .select('*')
-          .eq('id', todayId)
-          .single();
-
-        if (data) {
-          startPuzzle(data);
-        } else {
-          throw error || new Error('No daily puzzle found');
-        }
-      } catch (err) {
-        console.warn('Could not load daily puzzle from Supabase, using fallback:', err);
-        startPuzzle({
-          id: todayId,
-          type: 'Mantiq (Logic)',
-          difficulty: 'Dhexdhexaad',
-          question: 'Waa maxay waxa qoyan marka uu ku qallajinayo?',
-          answer: ['Shukumaan', 'Towel'],
-          explanation: 'Shukumaanka (Towel) wuxuu nuugaa biyaha marka aad isku qallajinayso, sidaas ayuuna ku qoyaa.',
-          isDaily: true
-        });
-      }
-    };
-
-    loadDailyPuzzle();
-  }, []);
-
-  const handleShare = async () => {
-    const shareData = {
-      title: 'PuzzleWin Tartan',
-      text: `Waan xaliyay hal-xiraalaha maanta ee PuzzleWin! Igu soo biir oo ku guuleyso $10!`,
-      url: window.location.origin + '/wordbuz?ref=' + (userProfile?.referral_code || '')
-    };
-    try {
-      if (navigator.share) await navigator.share(shareData);
-      else {
-        navigator.clipboard.writeText(shareData.url);
-        alert('Linkiga waa la koobiyey!');
-      }
-    } catch (err) { console.log('Cilad wadaagista:', err); }
-  };
+  if (!user) {
+    return (
+      <div className="empty-state animate-fade-in" style={{ minHeight: '60vh', justifyContent: 'center' }}>
+        <Trophy size={64} style={{ color: 'var(--accent-amber)', marginBottom: '1rem' }} />
+        <h2>Fadlan Soo Gal</h2>
+        <p className="text-secondary max-w-sm">Si aad uga qayb gasho tartanka maalinlaha ah, fadlan akoonkaaga soo gal.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="px-4 section-padding max-w-3xl mx-auto space-y-10">
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-bold uppercase tracking-wider">
-          <Trophy size={14} />
-          <span>Abaalmarinta Maalinlaha</span>
+    <PageCard className="animate-fade-in" >
+      <div className="page-header text-center mb-xl">
+        <div className="badge badge-amber mb-md">
+          <Star size={14} className="mr-2 inline" style={{ verticalAlign: 'middle', marginRight: '4px' }} /> Abaalmarin: $10.00
         </div>
-        
-        <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">Tartanka Maanta</h1>
-        <p className="text-slate-800 text-lg">
-          Xali hal-xiraalahan adigoo isticmaalaya 3 isku-day si aad ugu guuleysato <span className="font-bold text-slate-900">$10 abaalmarin ah.</span>
-        </p>
+        <h1>Tartanka Maanta</h1>
+        <p className="text-secondary text-lg">Hal fursad. Hal jawaab. Hal guuleyste.</p>
+      </div>
+
+      <div className="grid-4 mb-xl">
+        {[
+          { label: 'Waqtiga Haray', value: '14:23:05', icon: <Clock size={24} />, color: 'blue' },
+          { label: 'Ciyaartoyda', value: '847', icon: <Users size={24} />, color: 'cyan' },
+          { label: 'Dhibcaha', value: '+50', icon: <Star size={24} />, color: 'amber' },
+          { label: 'Heerka', value: 'Adag', icon: <Trophy size={24} />, color: 'red' },
+        ].map((stat, i) => (
+          <div key={i} className="glass-card text-center" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+            <div className={`stat-card-icon ${stat.color}`}>
+              {stat.icon}
+            </div>
+            <div className="stat-card-value" style={{ fontSize: '1.75rem' }}>{stat.value}</div>
+            <div className="stat-card-label">{stat.label}</div>
+          </div>
+        ))}
       </div>
 
       <PuzzlePlayer />
-
-      <AdUnit slotId="daily-premium-banner" />
-
+      
       {isSolved && (
-        <div className="clean-card bg-emerald-50 border-emerald-200 text-center space-y-6">
-          <div className="space-y-3">
-            <div className="inline-flex p-3 bg-emerald-100 rounded-full text-emerald-600">
-              <CheckCircle2 size={32} />
-            </div>
-            <h2 className="text-2xl font-bold text-slate-900">Nasiib Wacan!</h2>
-            <p className="text-slate-800">
-              Waxaad heshay 1 fursad oo aad kaga qaybgasho isku-aadka maanta. Natiijada dib u eeg <span className="font-bold text-slate-900">12 saac</span> kadib.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { label: 'Fursadaha', value: '1', color: 'text-emerald-600' },
-              { label: 'Dhibco Dheeri', value: '+15', color: 'text-blue-600' },
-              { label: 'Kaalinta', value: '#42', color: 'text-orange-600' },
-            ].map((stat, i) => (
-              <div key={i} className="p-4 bg-white rounded-lg border border-slate-200 shadow-sm">
-                <div className="text-xs text-slate-700 uppercase font-bold mb-1">{stat.label}</div>
-                <div className={`text-2xl font-black ${stat.color}`}>{stat.value}</div>
-              </div>
-            ))}
-          </div>
-
-          <button 
-            onClick={handleShare}
-            className="btn-primary w-full sm:w-auto mx-auto px-8"
-          >
-            <Share2 size={20} />
-            La Wadaag si aad u hesho +1 Fursad
+        <div className="text-center mt-xl">
+          <button className="btn btn-secondary">
+            Arag Hogaanka <ArrowRight size={18} style={{ marginLeft: '8px' }} />
           </button>
         </div>
       )}
-
-      {/* Social proof bar */}
-      <div className="flex flex-wrap items-center justify-center gap-6 py-6 border-t border-slate-200 text-slate-800">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <Users size={16} className="text-blue-500" />
-          <span>1,240 ayaa hada ciyaaraya</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <Zap size={16} className="text-orange-500" />
-          <span>82% ayaa xaliyay</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <Star size={16} className="text-brand-500" />
-          <span>4.9/5 qiimeynta</span>
-        </div>
-      </div>
-    </div>
+    </PageCard>
   );
 };
 

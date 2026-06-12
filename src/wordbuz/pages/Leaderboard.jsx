@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Medal, Flame, Star, Crown, TrendingUp } from 'lucide-react';
+import { Trophy, Flame, Star, TrendingUp } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -36,21 +36,9 @@ const Leaderboard = () => {
         });
 
         if (userProfile) {
-          const { count: totalUsersCount, error: countErr } = await supabase
-            .from('users')
-            .select('*', { count: 'exact', head: true });
-
-          if (countErr) throw countErr;
-
-          const { count: higherPointsCount } = await supabase
-            .from('users')
-            .select('*', { count: 'exact', head: true })
-            .gt('points', userProfile.points || 0);
-
-          const { count: higherStreakCount } = await supabase
-            .from('users')
-            .select('*', { count: 'exact', head: true })
-            .gt('streak', userProfile.streak || 0);
+          const { count: totalUsersCount } = await supabase.from('users').select('*', { count: 'exact', head: true });
+          const { count: higherPointsCount } = await supabase.from('users').select('*', { count: 'exact', head: true }).gt('points', userProfile.points || 0);
+          const { count: higherStreakCount } = await supabase.from('users').select('*', { count: 'exact', head: true }).gt('streak', userProfile.streak || 0);
 
           setUserRank({
             pointsRank: (higherPointsCount || 0) + 1,
@@ -72,99 +60,89 @@ const Leaderboard = () => {
   const activeRank = activeTab === 'points' ? userRank.pointsRank : userRank.streaksRank;
 
   return (
-    <div className="px-4 section-padding max-w-3xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="text-center space-y-3">
-        <h1 className="text-3xl sm:text-4xl font-bold text-slate-900">Hogaanka Ciyaarta</h1>
-        <p className="text-slate-800">Ciyaartoyda ugu sareysa. Waa la cusbooneysiiyaa waqtiga dhabta ah.</p>
+    <PageCard className="animate-fade-in" style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div className="page-header text-center mb-xl">
+        <h1>Hogaanka Ciyaarta</h1>
+        <p className="text-secondary text-lg">Ciyaartoyda ugu sareysa. Waa la cusbooneysiiyaa waqtiga dhabta ah.</p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
+      <div className="tabs mb-xl" style={{ maxWidth: '400px', margin: '0 auto 2rem' }}>
         {[
-          { id: 'points', label: 'Dhibcaha', icon: <Star size={16} /> },
-          { id: 'streaks', label: 'Joogtaynta', icon: <Flame size={16} /> }
+          { id: 'points', label: 'Dhibcaha', icon: <Star size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} /> },
+          { id: 'streaks', label: 'Joogtaynta', icon: <Flame size={16} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'text-bottom' }} /> }
         ].map((tab) => (
           <button 
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 py-2.5 rounded-md font-semibold text-sm flex items-center justify-center gap-2 transition-colors ${
-              activeTab === tab.id ? 'bg-white text-brand-600 shadow-sm border border-slate-200' : 'text-slate-800 hover:text-slate-900'
-            }`}
+            className={`tab ${activeTab === tab.id ? 'active' : ''}`}
           >
-            {tab.icon}
-            {tab.label}
+            {tab.icon} {tab.label}
           </button>
         ))}
       </div>
 
-      {/* Leaderboard List */}
-      <div className="clean-card p-0 overflow-hidden bg-white text-slate-800">
-        {loading ? (
-          <div className="py-12 flex items-center justify-center">
-            <div className="w-8 h-8 border-4 border-brand-600/20 border-t-brand-600 rounded-full animate-spin" />
-          </div>
-        ) : currentData.length === 0 ? (
-          <div className="py-12 text-center text-slate-500">Ciyaartoy ma jirto dhamaanin</div>
-        ) : (
-          currentData.map((player, i) => (
+      {loading ? (
+        <div className="empty-state">
+          <div style={{ width: '40px', height: '40px', border: '3px solid var(--card-border)', borderTopColor: 'var(--accent)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+        </div>
+      ) : currentData.length === 0 ? (
+        <div className="empty-state">
+          <Trophy size={48} />
+          <h3>Ciyaartoy ma jirto dhamaanin</h3>
+        </div>
+      ) : (
+        <div className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
+          {currentData.map((player, i) => (
             <div 
               key={player.uid || player.id}
-              className={`flex items-center gap-4 p-4 sm:p-5 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors ${
-                i === 0 ? 'bg-amber-50/30' : ''
-              }`}
+              className="list-item"
+              style={{ border: 'none', borderRadius: '0', borderBottom: '1px solid var(--card-border)' }}
             >
-              <div className={`font-bold text-lg w-8 text-center ${
-                i === 0 ? 'text-amber-500' : i === 1 ? 'text-slate-600' : i === 2 ? 'text-orange-700' : 'text-slate-600'
-              }`}>
+              <div style={{ width: '30px', textAlign: 'center', fontWeight: 'bold', color: i < 3 ? 'var(--accent-amber)' : 'var(--text-muted)', fontSize: i < 3 ? '1.25rem' : '1rem' }}>
                 #{i + 1}
               </div>
               
-              <div className="w-10 h-10 bg-slate-100 text-slate-800 rounded-full flex items-center justify-center font-bold text-sm">
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--bg-deep)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', border: i < 3 ? '2px solid var(--accent-amber)' : '1px solid var(--card-border)' }}>
                 {player.avatar || player.username?.charAt(0).toUpperCase() || 'U'}
               </div>
               
-              <div className="flex-1 min-w-0">
-                <div className="font-bold text-slate-900 truncate flex items-center gap-2">
-                  {player.username || player.name}
-                  {i === 0 && <Crown size={14} className="text-amber-500" />}
-                </div>
-                <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                  <Flame size={12} className="text-orange-500" /> {player.streak} maalmood
+              <div style={{ flex: '1', minWidth: '0' }}>
+                <div style={{ fontWeight: 'bold', color: 'var(--text-main)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{player.username || player.name}</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Flame size={12} style={{ color: 'var(--accent-amber)' }} /> {player.streak} maalmood
                 </div>
               </div>
               
-              <div className="text-right">
-                <div className="font-bold text-brand-600 text-lg">
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontWeight: 'bold', color: activeTab === 'points' ? 'var(--accent-cyan)' : 'var(--accent-amber)', fontSize: '1.25rem' }}>
                   {activeTab === 'points' ? (player.points || 0).toLocaleString() : (player.streak || 0)}
                 </div>
-                <div className="text-[10px] text-slate-500 uppercase font-semibold">
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold' }}>
                   {activeTab === 'points' ? 'Dhibcood' : 'Maalmood'}
                 </div>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
 
-      {/* Your Rank */}
-      {userProfile && (
-        <div className="clean-card bg-brand-50 border-brand-200 flex items-center gap-4 p-5">
-          <div className="w-10 h-10 bg-brand-600 text-white rounded-full flex items-center justify-center font-bold">
-            {userProfile.username?.charAt(0).toUpperCase() || 'Y'}
-          </div>
-          <div className="flex-1">
-            <div className="text-xs text-brand-700 font-semibold uppercase">Booskaaga</div>
-            <div className="text-lg font-bold text-slate-900">
-              #{activeRank} ee {userRank.total}
+          {userProfile && (
+            <div style={{ padding: '1.5rem', background: 'rgba(0, 240, 255, 0.05)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--gradient-primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1.25rem' }}>
+                {userProfile.username?.charAt(0).toUpperCase() || 'Y'}
+              </div>
+              <div style={{ flex: '1' }}>
+                <div style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', fontWeight: 'bold', textTransform: 'uppercase' }}>Booskaaga</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
+                  #{activeRank} <span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>ee {userRank.total}</span>
+                </div>
+              </div>
+              <div className="badge badge-green" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <TrendingUp size={14} /> Firfircoon
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-1 text-emerald-700 font-semibold text-sm bg-emerald-100 px-3 py-1 rounded-md">
-            <TrendingUp size={14} /> Firfircoon
-          </div>
+          )}
         </div>
       )}
-    </div>
+    </PageCard>
   );
 };
 
