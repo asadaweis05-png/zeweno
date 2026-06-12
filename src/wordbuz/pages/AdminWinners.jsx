@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { PageCard } from '../../components/PageCard';
+import { PageCard } from '../components/PageCard';
 import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 
 // Admin page to review pending puzzle winners and approve them.
@@ -97,7 +97,7 @@ const AdminWinners = () => {
               </div>
               <button
                 onClick={() => approveWinner(w.id)}
-                className="btn btn-success flex items-center gap-1"
+                className="btn btn-primary flex items-center gap-1"
               >
                 <CheckCircle size={16} /> Approve
               </button>

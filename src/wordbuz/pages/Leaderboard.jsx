@@ -171,7 +171,7 @@ const Leaderboard = () => {
                 <TrendingUp size={14} /> Firfircoon
               </div>
             </div>
-          )}
+          
         </div>
       )}
     </PageCard>

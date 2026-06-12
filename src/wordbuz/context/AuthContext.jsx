@@ -188,6 +188,9 @@ export const AuthProvider = ({ children }) => {
       return false;
     }
   };
+
+  // Value object provided to AuthContext
+  const value = {
     user,
     userProfile,
     loading: loading || authLoading,
@@ -195,8 +198,10 @@ export const AuthProvider = ({ children }) => {
     signup,
     logout,
     recordPuzzleResult,
-    awardDailyPrize
+    awardDailyPrize,
   };
+
+  
 
   return (
     <AuthContext.Provider value={value}>
