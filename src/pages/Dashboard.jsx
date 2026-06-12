@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import AdUnit from '../components/common/AdUnit';
 import {
   Flame, Dumbbell, Heart, Salad,
-  TrendingUp, ArrowRight, Footprints, Users,
+  TrendingUp, ArrowRight, Footprints, Users, Brain,
 } from 'lucide-react';
 import { calculateBMR, calculateTDEE, calculateStreak } from '../utils/calculations';
 
@@ -24,6 +24,7 @@ export default function Dashboard() {
     { to: '/vitalflow/community', icon: Users, title: 'Community', desc: 'Share & Connect', color: 'pink' },
     { to: '/vitalflow/health', icon: Heart, title: 'Health', desc: 'Monitor Vitals', color: 'blue' },
     { to: '/vitalflow/diet-ai', icon: Salad, title: 'Diet AI', desc: 'Personalized Plans', color: 'amber' },
+    { to: '/wordbuz', icon: Brain, title: 'WordBuz', desc: 'Solve & Earn Points', color: 'teal' },
   ];
 
   return (

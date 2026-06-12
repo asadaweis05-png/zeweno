@@ -2,7 +2,7 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import {
   LayoutDashboard, Flame, Dumbbell, Heart,
-  Salad, ArrowLeft, Users, LogOut
+  Salad, ArrowLeft, Users, LogOut, Brain
 } from 'lucide-react';
 
 const navItems = [
@@ -16,6 +16,8 @@ const navItems = [
   { to: '/vitalflow/health', icon: Heart, label: 'Health' },
   { section: 'AI' },
   { to: '/vitalflow/diet-ai', icon: Salad, label: 'Diet Plan' },
+  { section: 'Brain Training' },
+  { to: '/wordbuz', icon: Brain, label: 'WordBuz Puzzles' },
 ];
 
 export default function Sidebar() {

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -23,6 +24,9 @@ import Notes from './pages/Notes';
 import FlashCards from './pages/FlashCards';
 
 import NotFound from './pages/NotFound';
+
+// WordBuz (lazy loaded)
+const WordbuzLayout = lazy(() => import('./wordbuz/WordbuzLayout'));
 
 function ProtectedRoute() {
   const { user, authLoading, signOut } = useApp();
@@ -95,6 +99,13 @@ export default function App() {
           {/* Public Auth Route */}
           <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<Marketplace />} />
+
+          {/* WordBuz Puzzle Module (Public) */}
+          <Route path="/wordbuz/*" element={
+            <Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',backgroundColor:'#0a0a0a'}}><span className="spinner" style={{width:'40px',height:'40px',borderWidth:'3px'}}></span></div>}>
+              <WordbuzLayout />
+            </Suspense>
+          } />
           
           {/* Secure Workspace Routes */}
           <Route element={<ProtectedRoute />}>
