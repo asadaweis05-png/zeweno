@@ -11,6 +11,7 @@ import {
   Globe,
   Cpu,
   BookOpen,
+  Gamepad2,
 } from 'lucide-react';
 
 // App data definitions (static)
@@ -45,6 +46,17 @@ const primaryApps = [
     dev: 'Zeweno Systems',
     desc: 'Ciyaar xujooyin erayo ah oo madadaalo leh. Tijaabi garaadkaaga, baro erayo cusub, oo maskaxdaada ka shaqeysii.',
     color: 'amber',
+    tag: 'Rakiban',
+    featured: true,
+  },
+  {
+    id: 'gz',
+    to: '/gamezeweno',
+    icon: Gamepad2,
+    title: 'Gamezeweno OS',
+    dev: 'Zeweno Systems',
+    desc: 'Goobta ciyaaraha iyo suuqa koontooyinka. Iibso ama iibi koontooyinka eFootball & PUBG, akhri warar xiiso leh, oo ka qaybgal hadiyado bilaash ah.',
+    color: 'emerald',
     tag: 'Rakiban',
     featured: true,
   },

@@ -27,6 +27,7 @@ import NotFound from './pages/NotFound';
 
 // WordBuz (lazy loaded)
 const WordbuzLayout = lazy(() => import('./wordbuz/WordbuzLayout'));
+const GamezewenoLayout = lazy(() => import('./gamezeweno/GamezewenoLayout'));
 
 function ProtectedRoute() {
   const { user, authLoading } = useApp();
@@ -59,6 +60,12 @@ export default function App() {
           <Route path="/wordbuz/*" element={
             <Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',backgroundColor:'#0a0a0a'}}><span className="spinner" style={{width:'40px',height:'40px',borderWidth:'3px'}}></span></div>}>
               <WordbuzLayout />
+            </Suspense>
+          } />
+          {/* Gamezeweno Module (Public) */}
+          <Route path="/gamezeweno/*" element={
+            <Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',backgroundColor:'#0a0a0a'}}><span className="spinner" style={{width:'40px',height:'40px',borderWidth:'3px'}}></span></div>}>
+              <GamezewenoLayout />
             </Suspense>
           } />
           
