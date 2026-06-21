@@ -1,4 +1,4 @@
-import { useAuth } from '../wordbuz/context/AuthContext';
+
 import { useApp } from '../context/AppContext';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -102,8 +102,7 @@ function AppCard({ app }) {
 }
 
 export default function Marketplace() {
-  const { user, login, logout, loading: authLoading } = useAuth();
-  const { profile } = useApp();
+  const { user, signIn, signOut, authLoading } = useApp();
   const navigate = useNavigate();
 
   // Referral handling: store code from URL
@@ -119,13 +118,13 @@ export default function Marketplace() {
     const email = prompt('Enter email');
     const password = prompt('Enter password');
     if (email && password) {
-      const result = await login(email, password);
-      if (result.error) alert('Login failed: ' + result.error.message);
+      const { error } = await signIn(email, password);
+      if (error) alert('Login failed: ' + error.message);
     }
   };
 
   const handleSignOut = async () => {
-    await logout();
+    await signOut();
   };
 
   return (
