@@ -19,23 +19,23 @@ function ArticleCard({ article, featured = false }) {
   };
 
   if (featured) return (
-    <Link to={`/gamezeweno/news/${article.slug}`} className="group block gaming-card overflow-hidden h-full">
-      <div className="relative h-52 overflow-hidden">
-        <img src={article.thumbnail} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #151515 0%, transparent 60%)' }} />
+    <Link to={`/gamezeweno/news/${article.slug}`} className="group flex flex-col gaming-card overflow-hidden h-full">
+      <div className="relative h-56 overflow-hidden shrink-0">
+        <img src={article.thumbnail} alt={article.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#151515] via-transparent to-transparent" />
         <div className="absolute top-3 left-3">
-          <span className={`badge-${article.category.includes('PUBG') ? 'purple' : 'blue'} text-xs`}>{article.category}</span>
+          <span className={`badge-${article.category.includes('PUBG') ? 'purple' : 'blue'} text-xs uppercase tracking-wider`}>{article.category}</span>
         </div>
       </div>
-      <div className="p-5">
-        <h3 className="font-gaming font-bold text-base text-white group-hover:text-neon-blue transition-colors line-clamp-2 mb-2">{article.title}</h3>
-        <p className="text-text-muted text-sm font-body line-clamp-2 mb-4">{article.excerpt}</p>
-        <div className="flex items-center justify-between text-xs text-text-muted font-body">
+      <div className="p-6 flex flex-col flex-1">
+        <h3 className="font-gaming font-bold text-lg text-white group-hover:text-neon-blue transition-colors line-clamp-2 mb-3 leading-snug">{article.title}</h3>
+        <p className="text-text-muted text-sm font-body line-clamp-3 mb-4 flex-1">{article.excerpt}</p>
+        <div className="flex items-center justify-between text-xs text-text-muted font-body mt-auto pt-4 border-t border-white/5">
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1"><Clock size={11} />{article.read_time}m read</span>
-            <span className="flex items-center gap-1"><Eye size={11} />{(article.views / 1000).toFixed(1)}k</span>
+            <span className="flex items-center gap-1"><Clock size={12} className="text-neon-blue" />{article.read_time}m read</span>
+            <span className="flex items-center gap-1"><Eye size={12} className="text-neon-purple" />{(article.views / 1000).toFixed(1)}k</span>
           </div>
-          <span>{timeAgo(article.published_at)}</span>
+          <span className="text-white/40">{timeAgo(article.published_at)}</span>
         </div>
       </div>
     </Link>
@@ -61,37 +61,37 @@ function ArticleCard({ article, featured = false }) {
 
 function AccountCard({ account }) {
   return (
-    <Link to={`/gamezeweno/accounts/${account.id}`} className="group gaming-card overflow-hidden block">
-      <div className="relative h-40 overflow-hidden">
-        <img src={account.image} alt={account.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #151515, transparent 50%)' }} />
+    <Link to={`/gamezeweno/accounts/${account.id}`} className="group gaming-card flex flex-col overflow-hidden h-full">
+      <div className="relative h-48 overflow-hidden shrink-0">
+        <img src={account.image} alt={account.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#151515] via-[#151515]/20 to-transparent" />
         {account.badge && (
           <div className="absolute top-3 right-3">
-            <span className={`badge-${account.badge === 'HOT' ? 'red' : account.badge === 'RARE' ? 'purple' : account.badge === 'FEATURED' ? 'blue' : 'green'} text-xs font-gaming`}>
+            <span className={`badge-${account.badge === 'HOT' ? 'red' : account.badge === 'RARE' ? 'purple' : account.badge === 'FEATURED' ? 'blue' : 'green'} text-xs font-gaming shadow-lg shadow-black/50`}>
               {account.badge}
             </span>
           </div>
         )}
-        <div className="absolute bottom-3 left-3">
-          <span className="badge-blue text-xs">{account.game}</span>
+        <div className="absolute bottom-4 left-4">
+          <span className="badge-blue text-xs uppercase tracking-widest bg-[#151515]/80 backdrop-blur-md border-neon-blue/30">{account.game}</span>
         </div>
       </div>
-      <div className="p-4">
-        <h3 className="font-semibold text-sm font-body text-white group-hover:text-neon-blue transition-colors line-clamp-1 mb-2">{account.title}</h3>
-        <div className="flex items-center gap-2 text-xs text-text-muted font-body mb-3">
-          <span>Lvl {account.level}</span>
-          <span className="text-white/20">•</span>
-          <div className="flex items-center gap-0.5">
+      <div className="p-5 flex flex-col flex-1">
+        <h3 className="font-semibold text-base font-body text-white group-hover:text-neon-blue transition-colors line-clamp-2 mb-3">{account.title}</h3>
+        <div className="flex items-center gap-3 text-sm text-text-muted font-body mb-4 bg-white/5 p-2.5 rounded-lg border border-white/5">
+          <span className="font-semibold text-white">Lvl {account.level}</span>
+          <div className="w-px h-4 bg-white/10" />
+          <div className="flex items-center gap-1">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} size={10} className={i < Math.floor(account.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-white/20'} />
+              <Star key={i} size={12} className={i < Math.floor(account.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-white/20'} />
             ))}
-            <span className="ml-1 text-text-secondary">{account.rating}</span>
+            <span className="ml-1 font-semibold text-white">{account.rating}</span>
           </div>
         </div>
-        <div className="flex items-center justify-between">
-          <span className="price-tag text-lg">${account.price}</span>
-          <span className="text-xs text-neon-green group-hover:underline font-body flex items-center gap-1">
-            Buy Now <ArrowRight size={11} />
+        <div className="flex items-center justify-between mt-auto pt-2">
+          <span className="price-tag text-xl font-black">${account.price}</span>
+          <span className="text-sm font-semibold text-neon-green group-hover:translate-x-1 transition-transform flex items-center gap-1.5">
+            Buy Now <ArrowRight size={14} />
           </span>
         </div>
       </div>
@@ -101,25 +101,30 @@ function AccountCard({ account }) {
 
 function GiveawayCard({ giveaway }) {
   return (
-    <Link to="/gamezeweno/giveaways" className="group gaming-card overflow-hidden block">
-      <div className="relative h-36 overflow-hidden">
-        <img src={giveaway.image} alt={giveaway.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #151515, transparent 50%)' }} />
+    <Link to="/gamezeweno/giveaways" className="group gaming-card flex flex-col overflow-hidden h-full border border-neon-green/20 hover:border-neon-green/50">
+      <div className="relative h-44 overflow-hidden shrink-0">
+        <img src={giveaway.image} alt={giveaway.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#151515] via-[#151515]/40 to-transparent" />
         <div className="absolute top-3 left-3">
-          <span className="badge-green text-xs font-gaming">LIVE 🎁</span>
+          <span className="badge-green text-xs font-gaming shadow-[0_0_15px_rgba(0,255,153,0.3)] animate-pulse">LIVE 🎁</span>
         </div>
         {giveaway.badge && (
           <div className="absolute top-3 right-3">
-            <span className={`badge-${giveaway.badge === 'HOT' ? 'red' : giveaway.badge === 'NEW' ? 'blue' : 'purple'} text-xs`}>{giveaway.badge}</span>
+            <span className={`badge-${giveaway.badge === 'HOT' ? 'red' : giveaway.badge === 'NEW' ? 'blue' : 'purple'} text-xs font-bold shadow-lg shadow-black/50`}>{giveaway.badge}</span>
           </div>
         )}
       </div>
-      <div className="p-4">
-        <h3 className="font-semibold text-sm font-body text-white line-clamp-1 mb-1">{giveaway.title}</h3>
-        <p className="text-neon-green text-xs font-gaming mb-3">Prize: {giveaway.prize_value > 0 ? `$${giveaway.prize_value} Value` : giveaway.prize}</p>
-        <div className="flex items-center justify-between">
+      <div className="p-5 flex flex-col flex-1">
+        <h3 className="font-semibold text-base font-body text-white group-hover:text-neon-green transition-colors line-clamp-2 mb-3">{giveaway.title}</h3>
+        <div className="bg-neon-green/10 border border-neon-green/20 rounded-lg p-3 mb-4">
+          <p className="text-neon-green text-sm font-gaming text-center font-bold tracking-wide">
+            PRIZE: {giveaway.prize_value > 0 ? `$${giveaway.prize_value} VALUE` : giveaway.prize.toUpperCase()}
+          </p>
+        </div>
+        <div className="flex items-center justify-between mt-auto bg-white/5 rounded-lg p-3 border border-white/5">
           <CountdownTimer endDate={giveaway.ends_at} compact />
-          <span className="text-xs text-text-muted font-body">{giveaway.entries.toLocaleString()} entries</span>
+          <div className="w-px h-6 bg-white/10" />
+          <span className="text-xs font-bold text-text-secondary font-body uppercase tracking-wider">{giveaway.entries.toLocaleString()} ENTRIES</span>
         </div>
       </div>
     </Link>
@@ -303,18 +308,19 @@ export default function Home() {
                 {loading
                   ? [...Array(5)].map((_, i) => <div key={i} className="h-20 skeleton m-4 rounded-lg" />)
                   : trending.map((article, i) => (
-                    <div key={article.id} className="flex gap-3 p-4 group hover:bg-white/3 transition-colors cursor-pointer">
-                      <span className="font-gaming font-bold text-2xl w-8 shrink-0"
-                        style={{ color: i === 0 ? '#00CFFF' : i === 1 ? '#7A5CFF' : i === 2 ? '#00FF99' : '#333' }}>
+                    <Link key={article.id} to={`/gamezeweno/news/${article.slug}`} className="flex items-center gap-4 p-5 group hover:bg-[#1A1A1A] transition-all cursor-pointer relative overflow-hidden">
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-neon-blue transform -translate-x-full group-hover:translate-x-0 transition-transform" style={{ background: i === 0 ? '#00CFFF' : i === 1 ? '#7A5CFF' : i === 2 ? '#00FF99' : '#333' }} />
+                      <span className="font-gaming font-black text-3xl w-10 text-center opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all shrink-0"
+                        style={{ color: i === 0 ? '#00CFFF' : i === 1 ? '#7A5CFF' : i === 2 ? '#00FF99' : '#444', textShadow: i < 3 ? `0 0 15px ${i === 0 ? '#00CFFF' : i === 1 ? '#7A5CFF' : '#00FF99'}40` : 'none' }}>
                         {String(i + 1).padStart(2, '0')}
                       </span>
-                      <Link to={`/gamezeweno/news/${article.slug}`} className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold font-body text-text-secondary group-hover:text-white transition-colors line-clamp-2">{article.title}</p>
-                        <div className="flex items-center gap-2 mt-1 text-xs text-text-muted font-body">
-                          <Eye size={10} /> {(article.views / 1000).toFixed(1)}k views
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold font-body text-text-secondary group-hover:text-white transition-colors line-clamp-2 leading-relaxed">{article.title}</p>
+                        <div className="flex items-center gap-2 mt-2 text-xs text-text-muted font-body font-medium">
+                          <Eye size={12} className="text-neon-blue/70" /> {(article.views / 1000).toFixed(1)}k views
                         </div>
-                      </Link>
-                    </div>
+                      </div>
+                    </Link>
                   ))
                 }
               </div>
@@ -366,31 +372,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ NEWSLETTER ═══ */}
-      <section className="section-padding bg-gaming-grid">
-        <div className="container-gaming">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-2xl mx-auto text-center"
-          >
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
-              style={{ background: 'rgba(0,207,255,0.1)', border: '1px solid rgba(0,207,255,0.3)' }}>
-              <Zap size={28} className="text-neon-blue" />
-            </div>
-            <h2 className="text-3xl font-gaming font-bold gradient-text mb-2">Never Miss Gaming Updates</h2>
-            <p className="text-text-secondary font-body mb-8">Get instant alerts on new articles, account drops, and giveaways. Join 28,500+ gamers.</p>
-            <form className="flex flex-col sm:flex-row gap-3" onSubmit={e => e.preventDefault()}>
-              <input type="email" placeholder="your@email.com" className="input-gaming flex-1 text-center sm:text-left" />
-              <button type="submit" className="btn-primary px-8">
-                <span className="flex items-center gap-2">Subscribe <ArrowRight size={16} /></span>
-              </button>
-            </form>
-            <p className="text-text-muted text-xs font-body mt-3">No spam. Unsubscribe anytime.</p>
-          </motion.div>
-        </div>
-      </section>
+
     </div>
   );
 }
