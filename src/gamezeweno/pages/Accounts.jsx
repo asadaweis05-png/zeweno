@@ -127,7 +127,7 @@ export default function Accounts() {
         {!loading && featured.length > 0 && (
           <div className="mb-10">
             <h2 className="section-title gradient-text mb-5 flex items-center gap-2"><Star size={20} />Featured Accounts</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="cards-grid-3">
               {featured.map(acc => <AccountCard key={acc.id} account={acc} />)}
             </div>
           </div>
@@ -223,7 +223,7 @@ export default function Accounts() {
             <button onClick={() => { setGameFilter('All'); setPriceMax(500); setSearch(''); }} className="btn-secondary">Reset All Filters</button>
           </div>
         ) : (
-          <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <motion.div layout className="cards-grid-3">
             {filtered.map((acc, i) => (
               <motion.div key={acc.id} layout initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
                 <AccountCard account={acc} />

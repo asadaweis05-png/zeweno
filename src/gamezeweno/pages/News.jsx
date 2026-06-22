@@ -175,7 +175,7 @@ export default function News() {
 
               {/* Articles Grid */}
               {rest.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="cards-grid-3">
                   {rest.map((article, i) => (
                     <motion.div
                       key={article.id}

@@ -221,7 +221,7 @@ export default function Giveaways() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="cards-grid-3">
             {[...Array(3)].map((_, i) => <div key={i} className="h-[500px] skeleton rounded-xl" />)}
           </div>
         ) : active.length === 0 ? (
@@ -230,7 +230,7 @@ export default function Giveaways() {
             <p className="text-text-secondary font-body">No active giveaways right now. Check back soon!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="cards-grid-3">
             {active.map((g, i) => <GiveawayCard key={g.id} giveaway={g} index={i} />)}
           </div>
         )}
@@ -240,7 +240,7 @@ export default function Giveaways() {
       <section className="section-padding" style={{ background: 'rgba(0,207,255,0.03)', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
         <div className="container-gaming max-w-3xl mx-auto">
           <h2 className="section-title gradient-text text-center mb-8">Giveaway Rules</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="cards-grid-2" style={{ maxWidth: '800px', margin: '0 auto' }}>
             {[
               { num: '01', rule: 'Must complete all entry requirements listed on each giveaway card.' },
               { num: '02', rule: 'One entry per person. Multiple accounts will result in disqualification.' },
@@ -270,7 +270,7 @@ export default function Giveaways() {
           <Trophy size={22} className="text-yellow-400" />
           <h2 className="section-title text-white">Past <span className="gradient-text">Winners</span></h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="cards-grid-3 mb-8">
           {PAST_WINNERS.map(winner => <WinnerCard key={winner.id} winner={winner} />)}
         </div>
 
