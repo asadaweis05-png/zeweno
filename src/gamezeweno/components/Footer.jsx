@@ -63,37 +63,7 @@ export default function Footer() {
 
   return (
     <footer style={{ background: '#080808', borderTop: '1px solid rgba(0,207,255,0.1)' }}>
-      {/* Newsletter Banner */}
-      <div style={{ background: 'linear-gradient(135deg, rgba(0,207,255,0.06), rgba(122,92,255,0.06))', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-        <div className="container-gaming py-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <h3 className="text-xl font-gaming font-bold gradient-text mb-1">Never Miss Gaming Updates</h3>
-              <p className="text-text-secondary text-sm font-body">Join 28,500+ gamers getting the latest news, drops & giveaways.</p>
-            </div>
-            {subscribed ? (
-              <div className="badge-green text-sm px-4 py-2">✓ You're subscribed! Welcome aboard.</div>
-            ) : (
-              <form onSubmit={handleSubscribe} className="flex gap-2 w-full md:w-auto">
-                <div className="relative flex-1 md:w-72">
-                  <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    className="input-gaming pl-9 text-sm h-11"
-                    required
-                  />
-                </div>
-                <button type="submit" className="btn-primary px-5 h-11 shrink-0">
-                  <span className="flex items-center gap-1">Subscribe <ArrowRight size={14} /></span>
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      </div>
+
 
       {/* Main Footer */}
       <div className="container-gaming py-12">

@@ -1,6 +1,24 @@
 /* ─── Base Reset & Global Styles ─── */
 @import "tailwindcss";
-@config "../../tailwind.config.js";
+
+@theme {
+  --color-neon-blue: #00CFFF;
+  --color-neon-purple: #7A5CFF;
+  --color-neon-green: #00FF99;
+  --color-dark-bg: #0A0A0A;
+  --color-card-bg: #151515;
+  --color-card-border: #1E1E1E;
+  --color-surface-game: #111111;
+  --color-surface-2: #1A1A1A;
+  --color-text-primary: #F0F0F0;
+  --color-text-secondary: #A0A0A0;
+  --color-text-muted: #606060;
+
+  --font-sans: 'Inter', sans-serif;
+  --font-gaming: 'Orbitron', sans-serif;
+  --font-body: 'Exo 2', sans-serif;
+  --font-ui: 'Inter', sans-serif;
+}
 
 .gamezeweno-root {
   font-family: 'Exo 2', 'Inter', sans-serif;
