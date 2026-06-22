@@ -4,7 +4,7 @@ export default {
     "./src/wordbuz/**/*.{js,ts,jsx,tsx}",
     "./src/gamezeweno/**/*.{js,ts,jsx,tsx}",
     "./src/**/*.css",
-  ]
+  ],
   corePlugins: {
     preflight: false, /* Disables Tailwind's global CSS reset to prevent overriding main site styles */
   },

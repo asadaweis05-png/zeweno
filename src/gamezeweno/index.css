@@ -1,5 +1,6 @@
 /* ─── Base Reset & Global Styles ─── */
 @import "tailwindcss";
+@config "../../tailwind.config.js";
 
 .gamezeweno-root {
   font-family: 'Exo 2', 'Inter', sans-serif;
