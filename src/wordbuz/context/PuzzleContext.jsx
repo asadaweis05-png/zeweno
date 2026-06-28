@@ -7,11 +7,13 @@ const PuzzleContext = createContext();
 export const usePuzzles = () => useContext(PuzzleContext);
 
 // ─── Anti-Cheat Constants ──────────────────────────────────────────────────
-const TIMER_SECONDS = 90; // 90s per question — not enough time to wait for AI
 const MAX_WARNINGS = 3;
 
 export const PuzzleProvider = ({ children }) => {
   const { recordPuzzleResult } = useAuth();
+
+  // ── Language state ───────────────────────────────────────────────────────
+  const [language, setLanguage] = useState('so'); // default: Somali
 
   // ── Puzzle state ────────────────────────────────────────────────────────
   const [activePuzzle, setActivePuzzle]   = useState(null);
@@ -21,16 +23,25 @@ export const PuzzleProvider = ({ children }) => {
   const [shuffledOptions, setShuffledOptions] = useState([]);
 
   // ── Timer state ──────────────────────────────────────────────────────────
-  const [timeLeft, setTimeLeft]     = useState(TIMER_SECONDS);
+  const [timeLeft, setTimeLeft]     = useState(0);
   const [timerActive, setTimerActive] = useState(false);
+  const [initialTimeLimit, setInitialTimeLimit] = useState(90);
   const timerRef = useRef(null);
 
   // ── Anti-cheat state ────────────────────────────────────────────────────
   const [cheatWarnings, setCheatWarnings] = useState(0);
-  const [cheatOverlay, setCheatOverlay]   = useState(false); // show overlay when tab left
+  const [cheatOverlay, setCheatOverlay]   = useState(false); 
   const [forfeited, setForfeited]         = useState(false);
   const [cheatReason, setCheatReason]     = useState('');
   const puzzleActiveRef = useRef(false);
+
+  // ── Normalize Arabic numerals helper ─────────────────────────────────────
+  const normalizeInput = (str) => {
+    return String(str)
+      .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+      .toLowerCase()
+      .trim();
+  };
 
   // ── Shuffle helper ───────────────────────────────────────────────────────
   const shuffle = (arr) => {
@@ -51,16 +62,31 @@ export const PuzzleProvider = ({ children }) => {
     setForfeited(false);
     setCheatWarnings(0);
     setCheatOverlay(false);
-    setTimeLeft(TIMER_SECONDS);
+    
+    // Dynamic timer to block second-phone typing
+    const limit = puzzle.timeLimit || 90;
+    setInitialTimeLimit(limit);
+    setTimeLeft(limit);
     setTimerActive(true);
+    
     puzzleActiveRef.current = true;
+    
     // Shuffle MCQ options on every new puzzle
-    if (puzzle.type === 'mcq' && puzzle.options) {
-      setShuffledOptions(shuffle(puzzle.options));
+    if (puzzle.type === 'mcq' && puzzle.options && puzzle.options[language]) {
+      setShuffledOptions(shuffle(puzzle.options[language]));
     } else {
       setShuffledOptions([]);
     }
-  }, []);
+  }, [language]);
+
+  // Re-shuffle options if language changes while puzzle is active
+  useEffect(() => {
+    if (activePuzzle && activePuzzle.type === 'mcq' && activePuzzle.options && activePuzzle.options[language]) {
+       // We keep the logic simple: if they switch language, re-shuffle options in new language
+       setShuffledOptions(shuffle(activePuzzle.options[language]));
+    }
+  }, [language, activePuzzle]);
+
 
   // ── Timer logic ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -84,7 +110,12 @@ export const PuzzleProvider = ({ children }) => {
 
   const getCorrectAnswerText = () => {
     if (!activePuzzle) return '';
-    return Array.isArray(activePuzzle.answer) ? activePuzzle.answer[0] : activePuzzle.answer;
+    // Answer is localized or array
+    const ans = activePuzzle.answer;
+    if (typeof ans === 'object' && !Array.isArray(ans)) {
+        return ans[language] || ans['so'];
+    }
+    return Array.isArray(ans) ? ans[0] : ans;
   };
 
   // ── Anti-cheat: tab visibility ────────────────────────────────────────────
@@ -117,7 +148,6 @@ export const PuzzleProvider = ({ children }) => {
     setCheatWarnings(prev => {
       const next = prev + 1;
       if (next >= MAX_WARNINGS) {
-        // Forfeit puzzle after 3 violations
         setForfeited(true);
         setTimerActive(false);
         puzzleActiveRef.current = false;
@@ -137,11 +167,19 @@ export const PuzzleProvider = ({ children }) => {
   const submitAnswer = async (userAnswer) => {
     if (!activePuzzle || isSolved || forfeited) return;
 
-    const normalized = String(userAnswer).toLowerCase().trim();
-    const correctRaw = activePuzzle.answer;
-    const correct = Array.isArray(correctRaw)
-      ? correctRaw.some(a => a.toLowerCase().trim() === normalized)
-      : correctRaw.toLowerCase().trim() === normalized;
+    const normalizedUser = normalizeInput(userAnswer);
+    let correct = false;
+    
+    // Check answer against localized dictionary or array
+    const rawAnswer = activePuzzle.answer;
+    if (Array.isArray(rawAnswer)) {
+       correct = rawAnswer.some(a => normalizeInput(a) === normalizedUser);
+    } else if (typeof rawAnswer === 'object') {
+       // Check against all languages just in case
+       correct = Object.values(rawAnswer).some(a => normalizeInput(a) === normalizedUser);
+    } else {
+       correct = normalizeInput(rawAnswer) === normalizedUser;
+    }
 
     setAttempts(prev => prev + 1);
 
@@ -152,16 +190,15 @@ export const PuzzleProvider = ({ children }) => {
       puzzleActiveRef.current = false;
 
       // Speed bonus: more time left = more bonus
-      const speedBonus = Math.floor(timeLeft / 10); // up to 9 bonus pts
-      // Cheat penalty: lose 5 pts per warning
+      const speedBonus = Math.floor(timeLeft / 5); 
       const cheatPenalty = cheatWarnings * 5;
       const base = activePuzzle.points || 10;
       const total = Math.max(0, base + speedBonus - cheatPenalty);
 
       setFeedback({
         type: 'success',
-        message: `✅ Correct! +${total} points${speedBonus > 0 ? ` (including +${speedBonus} speed bonus)` : ''}`,
-        explanation: activePuzzle.explanation,
+        message: `✅ Correct! +${total} points${speedBonus > 0 ? ` (speed bonus included)` : ''}`,
+        explanation: activePuzzle.explanation[language] || activePuzzle.explanation['so'],
         points: total,
       });
 
@@ -202,8 +239,9 @@ export const PuzzleProvider = ({ children }) => {
   };
 
   const value = {
+    language, setLanguage,
     activePuzzle, attempts, isSolved, feedback, shuffledOptions,
-    timeLeft, timerActive, TIMER_SECONDS,
+    timeLeft, timerActive, initialTimeLimit,
     cheatWarnings, cheatOverlay, forfeited, cheatReason, MAX_WARNINGS,
     submitAnswer, startPuzzle, loadFreePlay, loadDailyChallenge,
     dismissOverlay,
