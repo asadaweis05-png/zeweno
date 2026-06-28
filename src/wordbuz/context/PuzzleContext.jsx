@@ -1,177 +1,212 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 import confetti from 'canvas-confetti';
+import { getPuzzles, getDailyPuzzle } from '../data/puzzles';
 
 const PuzzleContext = createContext();
-
 export const usePuzzles = () => useContext(PuzzleContext);
 
-const puzzlesDB = [
-  {
-    id: 1,
-    question: "Waa maxay waxa markaad qabato dilaaca, laakiin haddii aad dayso nool?",
-    answer: "Muraayad",
-    explanation: "Muraayadda haddii aad dhulka ku dhufato way jabaysaa (dilaacaysaa), haddii kalena way iska jiraysaa.",
-    difficulty: "Adag",
-    type: "Hal-xiraale"
-  },
-  {
-    id: 2,
-    question: "Waa maxay waxa inta aad bixisid in ka badan ku soo noqda?",
-    answer: ["Naxariis", "Jacayl", "Sadaqo", "Cilmi"],
-    explanation: "Ficilada wanaagsan iyo aqoonta markaad bixisid way kuu labanlaabmaan.",
-    difficulty: "Dhexdhexaad",
-    type: "Hal-xiraale"
-  },
-  {
-    id: 3,
-    question: "Afar lugood ayuu leeyahay, laakiin ma socon karo. Waa maxay?",
-    answer: ["Kursi", "Miis", "Sariir"],
-    explanation: "Qalabka guriga sida kursiga iyo miisku waxay leeyihiin afar lugood laakiin ma lugeeyaan.",
-    difficulty: "Fudud",
-    type: "Hal-xiraale"
-  },
-  {
-    id: 4,
-    question: "Waa maxay waxa af leh laakiin aan hadlin, sariir leh laakiin aan seexan?",
-    answer: ["Wabi", "Wabiga"],
-    explanation: "Wabigu wuxuu leeyahay af (meesha uu ka bilowdo/dhamaado) iyo sariir (gunkiisa).",
-    difficulty: "Adag",
-    type: "Hal-xiraale"
-  },
-  {
-    id: 5,
-    question: "Waa maxay waxa qoorta ka xidhan, uurkana ka banaan?",
-    answer: ["Dhalo", "Caag"],
-    explanation: "Dhaladu ama caagadu waxay leedahay qoor cidhiidhi ah laakiin dhexdeedu way banaan tahay.",
-    difficulty: "Fudud",
-    type: "Hal-xiraale"
-  }
-];
+// ─── Anti-Cheat Constants ──────────────────────────────────────────────────
+const TIMER_SECONDS = 90; // 90s per question — not enough time to wait for AI
+const MAX_WARNINGS = 3;
 
 export const PuzzleProvider = ({ children }) => {
-  const { userProfile, recordPuzzleResult } = useAuth();
-  const [activePuzzle, setActivePuzzle] = useState(null);
-  const [attempts, setAttempts] = useState(0);
-  const [isSolved, setIsSolved] = useState(false);
-  const [feedback, setFeedback] = useState(null);
-  const [dailyCooldown, setDailyCooldown] = useState(0);
+  const { recordPuzzleResult } = useAuth();
 
-  // Psychologically engaging feedback messages (Somali)
-  const nearMissMessages = [
-    "Aad baad ugu dhawdahay!",
-    "Dadka intooda badan way ku khaldamaan faahfaahintan",
-    "Isku day mar kale, waad awoodaa",
-    "Ugu dhawaan waa sax, si fiican u eeg"
-  ];
+  // ── Puzzle state ────────────────────────────────────────────────────────
+  const [activePuzzle, setActivePuzzle]   = useState(null);
+  const [attempts, setAttempts]           = useState(0);
+  const [isSolved, setIsSolved]           = useState(false);
+  const [feedback, setFeedback]           = useState(null);
+  const [shuffledOptions, setShuffledOptions] = useState([]);
 
-  const retryMessages = [
-    "Hadda ha is dhiibin!",
-    "Waqti ayaad gelisay, sii wad",
-    "Xoogaa yar ayaa dhiman si aad u xalliso"
-  ];
+  // ── Timer state ──────────────────────────────────────────────────────────
+  const [timeLeft, setTimeLeft]     = useState(TIMER_SECONDS);
+  const [timerActive, setTimerActive] = useState(false);
+  const timerRef = useRef(null);
 
-  const submitAnswer = async (answer) => {
-    if (isSolved) return;
+  // ── Anti-cheat state ────────────────────────────────────────────────────
+  const [cheatWarnings, setCheatWarnings] = useState(0);
+  const [cheatOverlay, setCheatOverlay]   = useState(false); // show overlay when tab left
+  const [forfeited, setForfeited]         = useState(false);
+  const [cheatReason, setCheatReason]     = useState('');
+  const puzzleActiveRef = useRef(false);
 
-    setAttempts(prev => prev + 1);
-    
-    const normalizedUserAnswer = answer.toLowerCase().trim();
-    
-    // Check if answer is an array or string
-    let isCorrect = false;
-    if (Array.isArray(activePuzzle.answer)) {
-      isCorrect = activePuzzle.answer.some(ans => ans.toLowerCase().trim() === normalizedUserAnswer);
-    } else {
-      isCorrect = normalizedUserAnswer === activePuzzle.answer.toLowerCase().trim();
+  // ── Shuffle helper ───────────────────────────────────────────────────────
+  const shuffle = (arr) => {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
     }
-
-    if (isCorrect) {
-      setIsSolved(true);
-      setFeedback({ type: 'success', message: 'Cajiib! Waad xallisay!' });
-      
-      // Micro-rewards: Confetti
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-
-      // Award points
-      const basePoints = activePuzzle.difficulty === 'Fudud' ? 5 : activePuzzle.difficulty === 'Dhexdhexaad' ? 10 : 25;
-      
-      // Variable Reward System (Dopamine loop)
-      const bonus = Math.random() > 0.8 ? 10 : 0;
-      const totalAward = basePoints + bonus;
-      
-      await recordPuzzleResult({
-        pointsEarned: totalAward,
-        isSolved: true,
-        isDaily: activePuzzle.isDaily || false,
-        attemptsUsed: attempts + 1
-      });
-      
-      if (bonus > 0) {
-        setFeedback(prev => ({ 
-          ...prev, 
-          bonusMessage: `Nasiib wanaagsan! +${bonus} dhibcood dheeraad ah!` 
-        }));
-      }
-    } else {
-      // Near-Miss Effect & Engaging Feedback
-      let message = attempts < 2 
-        ? nearMissMessages[Math.floor(Math.random() * nearMissMessages.length)]
-        : retryMessages[Math.floor(Math.random() * retryMessages.length)];
-      
-      setFeedback({ type: 'error', message });
-
-      // Record failed attempt
-      await recordPuzzleResult({
-        pointsEarned: 0,
-        isSolved: false,
-        isDaily: activePuzzle.isDaily || false,
-        attemptsUsed: attempts + 1
-      });
-
-      // Daily Challenge Cooldown Logic (Simulated)
-      if (activePuzzle.isDaily && attempts >= 1) {
-        // After 2 free attempts, trigger cooldown or ad requirement
-        // For now, just a message
-      }
-    }
+    return a;
   };
 
-  const startPuzzle = (puzzle) => {
+  // ── Start a puzzle ───────────────────────────────────────────────────────
+  const startPuzzle = useCallback((puzzle) => {
     setActivePuzzle(puzzle);
     setAttempts(0);
     setIsSolved(false);
     setFeedback(null);
+    setForfeited(false);
+    setCheatWarnings(0);
+    setCheatOverlay(false);
+    setTimeLeft(TIMER_SECONDS);
+    setTimerActive(true);
+    puzzleActiveRef.current = true;
+    // Shuffle MCQ options on every new puzzle
+    if (puzzle.type === 'mcq' && puzzle.options) {
+      setShuffledOptions(shuffle(puzzle.options));
+    } else {
+      setShuffledOptions([]);
+    }
+  }, []);
+
+  // ── Timer logic ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!timerActive || isSolved || forfeited) return;
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          setTimerActive(false);
+          setForfeited(true);
+          puzzleActiveRef.current = false;
+          setFeedback({ type: 'timeout', message: "⏰ Time's up! The correct answer was: " + getCorrectAnswerText() });
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  // eslint-disable-next-line
+  }, [timerActive, isSolved, forfeited, activePuzzle]);
+
+  const getCorrectAnswerText = () => {
+    if (!activePuzzle) return '';
+    return Array.isArray(activePuzzle.answer) ? activePuzzle.answer[0] : activePuzzle.answer;
   };
 
-  const loadFreePlay = (difficulty) => {
-    const availablePuzzles = puzzlesDB.filter(p => p.difficulty === difficulty);
-    const randomIndex = Math.floor(Math.random() * availablePuzzles.length);
-    const selectedPuzzle = availablePuzzles[randomIndex] || puzzlesDB[0];
-    startPuzzle({ ...selectedPuzzle, isDaily: false });
+  // ── Anti-cheat: tab visibility ────────────────────────────────────────────
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (!puzzleActiveRef.current || isSolved || forfeited) return;
+      if (document.hidden) {
+        triggerCheatWarning('tab-switch', 'You switched tabs during the puzzle!');
+      } else {
+        setCheatOverlay(false);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [isSolved, forfeited]);
+
+  // ── Anti-cheat: window blur (switched apps) ───────────────────────────────
+  useEffect(() => {
+    const handleBlur = () => {
+      if (!puzzleActiveRef.current || isSolved || forfeited) return;
+      triggerCheatWarning('window-blur', 'You left the window during the puzzle!');
+    };
+    window.addEventListener('blur', handleBlur);
+    return () => window.removeEventListener('blur', handleBlur);
+  }, [isSolved, forfeited]);
+
+  const triggerCheatWarning = (reason, message) => {
+    setCheatReason(message);
+    setCheatOverlay(true);
+    setCheatWarnings(prev => {
+      const next = prev + 1;
+      if (next >= MAX_WARNINGS) {
+        // Forfeit puzzle after 3 violations
+        setForfeited(true);
+        setTimerActive(false);
+        puzzleActiveRef.current = false;
+        clearInterval(timerRef.current);
+        setFeedback({
+          type: 'cheat',
+          message: '🚫 Puzzle forfeited due to multiple cheating attempts. 0 points awarded.'
+        });
+      }
+      return next;
+    });
   };
 
+  const dismissOverlay = () => setCheatOverlay(false);
+
+  // ── Submit answer ────────────────────────────────────────────────────────
+  const submitAnswer = async (userAnswer) => {
+    if (!activePuzzle || isSolved || forfeited) return;
+
+    const normalized = String(userAnswer).toLowerCase().trim();
+    const correctRaw = activePuzzle.answer;
+    const correct = Array.isArray(correctRaw)
+      ? correctRaw.some(a => a.toLowerCase().trim() === normalized)
+      : correctRaw.toLowerCase().trim() === normalized;
+
+    setAttempts(prev => prev + 1);
+
+    if (correct) {
+      setIsSolved(true);
+      setTimerActive(false);
+      clearInterval(timerRef.current);
+      puzzleActiveRef.current = false;
+
+      // Speed bonus: more time left = more bonus
+      const speedBonus = Math.floor(timeLeft / 10); // up to 9 bonus pts
+      // Cheat penalty: lose 5 pts per warning
+      const cheatPenalty = cheatWarnings * 5;
+      const base = activePuzzle.points || 10;
+      const total = Math.max(0, base + speedBonus - cheatPenalty);
+
+      setFeedback({
+        type: 'success',
+        message: `✅ Correct! +${total} points${speedBonus > 0 ? ` (including +${speedBonus} speed bonus)` : ''}`,
+        explanation: activePuzzle.explanation,
+        points: total,
+      });
+
+      confetti({ particleCount: 140, spread: 70, origin: { y: 0.6 }, colors: ['#00CFFF','#7A5CFF','#00FF99'] });
+
+      await recordPuzzleResult({
+        pointsEarned: total,
+        isSolved: true,
+        isDaily: activePuzzle.isDaily || false,
+        attemptsUsed: attempts + 1,
+      });
+    } else {
+      const msgs = [
+        'Not quite — try again!',
+        'Close, but not right. Think carefully.',
+        'Incorrect. Review the question.',
+        'Wrong answer. One more attempt left before timeout.',
+      ];
+      setFeedback({
+        type: 'error',
+        message: msgs[Math.min(attempts, msgs.length - 1)],
+      });
+    }
+  };
+
+  // ── Load free play ────────────────────────────────────────────────────────
+  const loadFreePlay = (category = 'All', difficulty = 'All') => {
+    const pool = getPuzzles(category, difficulty);
+    if (!pool.length) return;
+    const puzzle = pool[Math.floor(Math.random() * pool.length)];
+    startPuzzle({ ...puzzle, isDaily: false });
+  };
+
+  // ── Load daily challenge ──────────────────────────────────────────────────
   const loadDailyChallenge = () => {
-    // For now, randomly pick a puzzle for the daily challenge or base it on date
-    const today = new Date().getDate();
-    const puzzle = puzzlesDB[today % puzzlesDB.length];
-    startPuzzle({ ...puzzle, isDaily: true });
+    const puzzle = getDailyPuzzle();
+    startPuzzle(puzzle);
   };
 
   const value = {
-    activePuzzle,
-    attempts,
-    isSolved,
-    feedback,
-    dailyCooldown,
-    submitAnswer,
-    startPuzzle,
-    loadFreePlay,
-    loadDailyChallenge
+    activePuzzle, attempts, isSolved, feedback, shuffledOptions,
+    timeLeft, timerActive, TIMER_SECONDS,
+    cheatWarnings, cheatOverlay, forfeited, cheatReason, MAX_WARNINGS,
+    submitAnswer, startPuzzle, loadFreePlay, loadDailyChallenge,
+    dismissOverlay,
   };
 
   return (
