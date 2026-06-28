@@ -12,32 +12,33 @@ import {
   Cpu,
   BookOpen,
   Gamepad2,
+  MessageSquare,
 } from 'lucide-react';
 
 // App data definitions (static)
 const primaryApps = [
-  {
-    id: 'vf',
-    to: '/vitalflow',
-    icon: LayoutDashboard,
-    title: 'VitalFlow OS',
-    dev: 'Zeweno Systems',
-    desc: 'Nidaam dhammaystiran oo loogu talagalay caafimaadka iyo wax-soo-saarka. Lasoco kallooriyaasha, jimicsiga, bulshada gym, iyo qorshayaasha cuntada ee AI hal meel oo qura.',
-    color: 'blue',
-    tag: 'Rakiban',
-    featured: true,
-  },
-  {
-    id: 'sf',
-    to: '/studyflow',
-    icon: BookOpen,
-    title: 'StudyFlow OS',
-    dev: 'Zeweno Systems',
-    desc: 'Goobta waxbarashada ee casriga ah. Ururso qoraallo, ku daabac xogta Flash Cards, oo ku baadh waxyaabaha aad baranayso adoo adeegsanaya AI-ka casriga ah.',
-    color: 'purple',
-    tag: 'Rakiban',
-    featured: true,
-  },
+  // {
+  //   id: 'vf',
+  //   to: '/vitalflow',
+  //   icon: LayoutDashboard,
+  //   title: 'VitalFlow OS',
+  //   dev: 'Zeweno Systems',
+  //   desc: 'Nidaam dhammaystiran oo loogu talagalay caafimaadka iyo wax-soo-saarka. Lasoco kallooriyaasha, jimicsiga, bulshada gym, iyo qorshayaasha cuntada ee AI hal meel oo qura.',
+  //   color: 'blue',
+  //   tag: 'Rakiban',
+  //   featured: true,
+  // },
+  // {
+  //   id: 'sf',
+  //   to: '/studyflow',
+  //   icon: BookOpen,
+  //   title: 'StudyFlow OS',
+  //   dev: 'Zeweno Systems',
+  //   desc: 'Goobta waxbarashada ee casriga ah. Ururso qoraallo, ku daabac xogta Flash Cards, oo ku baadh waxyaabaha aad baranayso adoo adeegsanaya AI-ka casriga ah.',
+  //   color: 'purple',
+  //   tag: 'Rakiban',
+  //   featured: true,
+  // },
   {
     id: 'wb',
     to: '/wordbuz',
@@ -49,23 +50,34 @@ const primaryApps = [
     tag: 'Rakiban',
     featured: true,
   },
-  {
-    id: 'gz',
-    to: '/gamezeweno',
-    icon: Gamepad2,
-    title: 'Gamezeweno OS',
-    dev: 'Zeweno Systems',
-    desc: 'Goobta ciyaaraha iyo suuqa koontooyinka. Iibso ama iibi koontooyinka eFootball & PUBG, akhri warar xiiso leh, oo ka qaybgal hadiyado bilaash ah.',
-    color: 'emerald',
-    tag: 'Rakiban',
-    featured: true,
-  },
+  // {
+  //   id: 'gz',
+  //   to: '/gamezeweno',
+  //   icon: Gamepad2,
+  //   title: 'Gamezeweno OS',
+  //   dev: 'Zeweno Systems',
+  //   desc: 'Goobta ciyaaraha iyo suuqa koontooyinka. Iibso ama iibi koontooyinka eFootball & PUBG, akhri warar xiiso leh, oo ka qaybgal hadiyado bilaash ah.',
+  //   color: 'emerald',
+  //   tag: 'Rakiban',
+  //   featured: true,
+  // },
+  // {
+  //   id: 'ch',
+  //   to: '/communityhub',
+  //   icon: Zap,
+  //   title: 'CommunityHub',
+  //   dev: 'Zeweno Systems',
+  //   desc: 'Madal bulsho oo casri ah: ka qaybgal doodaha, wadaag posts, oo isku xir dadka danahaaga la wadaaga.',
+  //   color: 'indigo',
+  //   tag: 'Rakiban',
+  //   featured: true,
+  // },
 ];
 
 const upcomingApps = [
-  { id: 'fin', to: '#', icon: Shield, title: 'FinanceVault', dev: 'Zeweno Labs', desc: 'Maareynta kharashyada iyo hantida oo ammaan ah, laguna shaqaysiinayo AI.', color: 'amber', tag: 'Dhowaan Filo' },
-  { id: 'soc', to: '#', icon: Globe, title: 'SocialSync', dev: 'Zeweno Labs', desc: 'Hal madal oo lagu maareeyo baraha bulshada iyo falanqaynta xogta.', color: 'purple', tag: 'Dhowaan Filo' },
-  { id: 'dev', to: '#', icon: Cpu, title: 'DevFlow', dev: 'Zeweno Systems', desc: 'Saaxiibka IDE ee cusub oo leh kormeerka wax-qabadka iyo xallinta khaladaadka waqtiga dhabta ah.', color: 'green', tag: 'Isku diwaangeli' },
+  // { id: 'fin', to: '#', icon: Shield, title: 'FinanceVault', dev: 'Zeweno Labs', desc: 'Maareynta kharashyada iyo hantida oo ammaan ah, laguna shaqaysiinayo AI.', color: 'amber', tag: 'Dhowaan Filo' },
+  // { id: 'soc', to: '#', icon: Globe, title: 'SocialSync', dev: 'Zeweno Labs', desc: 'Hal madal oo lagu maareeyo baraha bulshada iyo falanqaynta xogta.', color: 'purple', tag: 'Dhowaan Filo' },
+  // { id: 'dev', to: '#', icon: Cpu, title: 'DevFlow', dev: 'Zeweno Systems', desc: 'Saaxiibka IDE ee cusub oo leh kormeerka wax-qabadka iyo xallinta khaladaadka waqtiga dhabta ah.', color: 'green', tag: 'Isku diwaangeli' },
 ];
 
 function AppCard({ app }) {
@@ -160,6 +172,7 @@ export default function Marketplace() {
               <button className="btn btn-primary btn-lg" onClick={() => navigate('/vitalflow')}>
                 Bilow VitalFlow
               </button>
+              <button className="btn btn-primary btn-lg ml-2" onClick={() => navigate('/communityhub')}>Explore CommunityHub</button>
               <button
                 className="btn btn-secondary btn-lg"
                 onClick={() => (window.location.href = 'https://exams-umber-eight.vercel.app/')}

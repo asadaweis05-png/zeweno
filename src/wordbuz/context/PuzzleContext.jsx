@@ -6,6 +6,49 @@ const PuzzleContext = createContext();
 
 export const usePuzzles = () => useContext(PuzzleContext);
 
+const puzzlesDB = [
+  {
+    id: 1,
+    question: "Waa maxay waxa markaad qabato dilaaca, laakiin haddii aad dayso nool?",
+    answer: "Muraayad",
+    explanation: "Muraayadda haddii aad dhulka ku dhufato way jabaysaa (dilaacaysaa), haddii kalena way iska jiraysaa.",
+    difficulty: "Adag",
+    type: "Hal-xiraale"
+  },
+  {
+    id: 2,
+    question: "Waa maxay waxa inta aad bixisid in ka badan ku soo noqda?",
+    answer: ["Naxariis", "Jacayl", "Sadaqo", "Cilmi"],
+    explanation: "Ficilada wanaagsan iyo aqoonta markaad bixisid way kuu labanlaabmaan.",
+    difficulty: "Dhexdhexaad",
+    type: "Hal-xiraale"
+  },
+  {
+    id: 3,
+    question: "Afar lugood ayuu leeyahay, laakiin ma socon karo. Waa maxay?",
+    answer: ["Kursi", "Miis", "Sariir"],
+    explanation: "Qalabka guriga sida kursiga iyo miisku waxay leeyihiin afar lugood laakiin ma lugeeyaan.",
+    difficulty: "Fudud",
+    type: "Hal-xiraale"
+  },
+  {
+    id: 4,
+    question: "Waa maxay waxa af leh laakiin aan hadlin, sariir leh laakiin aan seexan?",
+    answer: ["Wabi", "Wabiga"],
+    explanation: "Wabigu wuxuu leeyahay af (meesha uu ka bilowdo/dhamaado) iyo sariir (gunkiisa).",
+    difficulty: "Adag",
+    type: "Hal-xiraale"
+  },
+  {
+    id: 5,
+    question: "Waa maxay waxa qoorta ka xidhan, uurkana ka banaan?",
+    answer: ["Dhalo", "Caag"],
+    explanation: "Dhaladu ama caagadu waxay leedahay qoor cidhiidhi ah laakiin dhexdeedu way banaan tahay.",
+    difficulty: "Fudud",
+    type: "Hal-xiraale"
+  }
+];
+
 export const PuzzleProvider = ({ children }) => {
   const { userProfile, recordPuzzleResult } = useAuth();
   const [activePuzzle, setActivePuzzle] = useState(null);
@@ -105,6 +148,20 @@ export const PuzzleProvider = ({ children }) => {
     setFeedback(null);
   };
 
+  const loadFreePlay = (difficulty) => {
+    const availablePuzzles = puzzlesDB.filter(p => p.difficulty === difficulty);
+    const randomIndex = Math.floor(Math.random() * availablePuzzles.length);
+    const selectedPuzzle = availablePuzzles[randomIndex] || puzzlesDB[0];
+    startPuzzle({ ...selectedPuzzle, isDaily: false });
+  };
+
+  const loadDailyChallenge = () => {
+    // For now, randomly pick a puzzle for the daily challenge or base it on date
+    const today = new Date().getDate();
+    const puzzle = puzzlesDB[today % puzzlesDB.length];
+    startPuzzle({ ...puzzle, isDaily: true });
+  };
+
   const value = {
     activePuzzle,
     attempts,
@@ -112,7 +169,9 @@ export const PuzzleProvider = ({ children }) => {
     feedback,
     dailyCooldown,
     submitAnswer,
-    startPuzzle
+    startPuzzle,
+    loadFreePlay,
+    loadDailyChallenge
   };
 
   return (

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { Suspense, lazy } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Analytics } from '@vercel/analytics/react';
+import CommunityHub from './pages/CommunityHub';
 
 // Auth
 import Auth from './pages/Auth';
@@ -54,7 +55,8 @@ export default function App() {
         <Routes>
           {/* Public Auth Route */}
           <Route path="/auth" element={<Auth />} />
-          <Route path="/" element={<Marketplace />} />
+          <Route path="/" element={<Navigate to="/wordbuz" replace />} />
+          <Route path="/marketplace" element={<Marketplace />} />
 
           {/* WordBuz Puzzle Module (Public) */}
           <Route path="/wordbuz/*" element={
@@ -72,6 +74,9 @@ export default function App() {
           {/* Secure Workspace Routes */}
           <Route element={<ProtectedRoute />}>
             
+            {/* CommunityHub Module */}
+            <Route path="/communityhub/*" element={<CommunityHub />} />
+
             {/* VitalFlow OS */}
             <Route path="/vitalflow" element={<Layout />}>
               <Route index element={<Dashboard />} />

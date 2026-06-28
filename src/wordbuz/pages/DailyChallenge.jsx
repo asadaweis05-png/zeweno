@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Trophy, Clock, Users, Star, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import PuzzlePlayer from '../components/PuzzlePlayer';
@@ -7,7 +7,11 @@ import PageCard from '../components/PageCard';
 
 const DailyChallenge = () => {
   const { user } = useAuth();
-  const { isSolved } = usePuzzles();
+  const { isSolved, loadDailyChallenge } = usePuzzles();
+
+  useEffect(() => {
+    loadDailyChallenge();
+  }, []);
 
   if (!user) {
     return (

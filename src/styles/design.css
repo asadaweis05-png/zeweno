@@ -1,0 +1,98 @@
+/* design.css – Vanilla CSS design system for CommunityHub */
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-card: rgba(255, 255, 255, 0.06);
+  --bg-sidebar: rgba(0, 0, 0, 0.5);
+  --color-primary: #6366f1; /* Indigo */
+  --color-accent: #8b5cf6; /* Violet */
+  --color-text: #e5e7eb;
+  --color-muted: #9ca3af;
+  --radius: 0.75rem;
+  --shadow: 0 4px 12px rgba(0,0,0,0.4);
+  --backdrop: blur(12px);
+  --font-primary: 'Inter', system-ui, sans-serif;
+}
+body {
+  background: var(--bg-primary);
+  color: var(--color-text);
+  font-family: var(--font-primary);
+  margin: 0;
+  padding: 0;
+}
+/* Layout */
+.ch-layout {
+  display: flex;
+  min-height: 100vh;
+}
+.ch-sidebar {
+  width: 260px;
+  background: var(--bg-sidebar);
+  backdrop-filter: var(--backdrop);
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+.ch-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+.ch-header {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+  color: #fff;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+/* Card */
+.ch-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: var(--backdrop);
+  padding: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.ch-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+}
+/* Buttons */
+.ch-btn-primary {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.ch-btn-primary:hover {
+  background: var(--color-accent);
+}
+.ch-btn-secondary {
+  background: transparent;
+  color: var(--color-muted);
+  border: 1px solid var(--color-muted);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+/* Responsive */
+@media (max-width: 768px) {
+  .ch-sidebar {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    display: flex;
+    justify-content: space-around;
+    padding: 0.5rem;
+  }
+  .ch-main {
+    margin-top: 60px;
+  }
+}
