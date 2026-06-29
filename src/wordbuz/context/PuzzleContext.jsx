@@ -224,26 +224,40 @@ export const PuzzleProvider = ({ children }) => {
     }
   };
 
+  const [freePlaySettings, setFreePlaySettings] = useState({ category: 'All', difficulty: 'All' });
+
   // ── Load free play ────────────────────────────────────────────────────────
-  const loadFreePlay = (category = 'All', difficulty = 'All') => {
+  const loadFreePlay = useCallback((category = 'All', difficulty = 'All') => {
+    setFreePlaySettings({ category, difficulty });
     const pool = getPuzzles(category, difficulty);
     if (!pool.length) return;
     const puzzle = pool[Math.floor(Math.random() * pool.length)];
     startPuzzle({ ...puzzle, isDaily: false });
-  };
+  }, [startPuzzle]);
 
   // ── Load daily challenge ──────────────────────────────────────────────────
-  const loadDailyChallenge = () => {
+  const loadDailyChallenge = useCallback(() => {
     const puzzle = getDailyPuzzle();
     startPuzzle(puzzle);
-  };
+  }, [startPuzzle]);
+
+  // ── Next puzzle ───────────────────────────────────────────────────────────
+  const nextPuzzle = useCallback(() => {
+    if (activePuzzle && activePuzzle.isDaily) {
+      // For daily challenge, typically they shouldn't just hit "next", but if they do, we can reload or redirect
+      window.location.href = '/wordbuz';
+    } else {
+      loadFreePlay(freePlaySettings.category, freePlaySettings.difficulty);
+    }
+  }, [activePuzzle, freePlaySettings, loadFreePlay]);
 
   const value = {
     language, setLanguage,
     activePuzzle, attempts, isSolved, feedback, shuffledOptions,
     timeLeft, timerActive, initialTimeLimit,
     cheatWarnings, cheatOverlay, forfeited, cheatReason, MAX_WARNINGS,
-    submitAnswer, startPuzzle, loadFreePlay, loadDailyChallenge,
+    submitAnswer, startPuzzle, loadFreePlay, loadDailyChallenge, nextPuzzle,
+
     dismissOverlay,
   };
 

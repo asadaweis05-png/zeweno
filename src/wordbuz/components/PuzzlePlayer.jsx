@@ -91,7 +91,7 @@ const PuzzlePlayer = () => {
     activePuzzle, shuffledOptions, attempts, isSolved, feedback,
     timeLeft, initialTimeLimit, forfeited,
     cheatWarnings, cheatOverlay, cheatReason, MAX_WARNINGS,
-    submitAnswer, dismissOverlay,
+    submitAnswer, dismissOverlay, nextPuzzle,
   } = usePuzzles();
 
   const [openAnswer, setOpenAnswer] = useState('');
@@ -229,9 +229,25 @@ const PuzzlePlayer = () => {
               </p>
               {feedback?.explanation && (
                 <p style={{ color: '#A0A0A0', fontSize: '0.9rem', lineHeight: 1.6, marginTop: '0.75rem', maxWidth: '520px', margin: '0.75rem auto 0' }}>
-                  <strong style={{ color: '#fff' }}>Explanation: </strong>{feedback.explanation}
+                  <strong style={{ color: '#fff' }}>Explanation: </strong>
+                  {activePuzzle.explanation[language] || activePuzzle.explanation['so']}
                 </p>
               )}
+              
+              <div style={{ marginTop: '1.5rem' }}>
+                <button 
+                  onClick={nextPuzzle}
+                  style={{
+                    background: 'linear-gradient(135deg, #00CFFF, #7A5CFF)',
+                    color: '#0A0A0A', border: 'none', borderRadius: '8px',
+                    padding: '0.75rem 2rem', fontWeight: 700, fontSize: '1rem',
+                    cursor: 'pointer', transition: 'all 0.2s',
+                    boxShadow: '0 0 15px rgba(0, 207, 255, 0.3)'
+                  }}
+                >
+                  {activePuzzle.isDaily ? 'Return to Dashboard' : 'Next Puzzle ➔'}
+                </button>
+              </div>
             </div>
           ) : activePuzzle.type === 'mcq' ? (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>

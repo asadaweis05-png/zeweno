@@ -367,6 +367,53 @@ export const PUZZLES = [
     },
     points: 40,
     timeLimit: 50
+  },
+  {
+    id: 'l4',
+    category: 'Logic',
+    difficulty: 'Medium',
+    type: 'mcq',
+    question: {
+      so: 'Haddii shalay ay ahayd berri, maanta waxay noqon lahayd Jimce. Waa maxay maalinta maanta dhab ahaan ah?',
+      en: 'If yesterday was tomorrow, today would be Friday. What is today really?',
+      ar: 'إذا كان الأمس هو الغد، لكان اليوم هو الجمعة. ما هو اليوم في الواقع؟'
+    },
+    options: {
+      so: ['Arbaco', 'Khamiis', 'Sabti', 'Axad'],
+      en: ['Wednesday', 'Thursday', 'Saturday', 'Sunday'],
+      ar: ['الأربعاء', 'الخميس', 'السبت', 'الأحد']
+    },
+    answer: {
+      so: 'Arbaco',
+      en: 'Wednesday',
+      ar: 'الأربعاء'
+    },
+    explanation: {
+      so: 'Haddii "shalay ay ahayd berri" taas oo ka dhigaysa maanta Jimce, markaas "berri" waa inay ahayd Khamiis (shalayta Jimcaha). Haddii berri ay tahay Khamiis, maanta waa Arbaco.',
+      en: 'If "yesterday was tomorrow" making today Friday, then "tomorrow" must be Thursday (yesterday of Friday). If tomorrow is Thursday, today is Wednesday.',
+      ar: 'إذا كان "الأمس هو الغد" مما يجعل اليوم الجمعة، فيجب أن يكون "الغد" هو الخميس (أمس الجمعة). إذا كان الغد هو الخميس، فاليوم هو الأربعاء.'
+    },
+    points: 20,
+    timeLimit: 40
+  },
+  {
+    id: 'm6',
+    category: 'Math',
+    difficulty: 'Hard',
+    type: 'open',
+    question: {
+      so: 'Waa maxay xididka labajibbaaran (square root) ee 144 oo lagu dhuftay 3?',
+      en: 'What is the square root of 144 multiplied by 3?',
+      ar: 'ما هو الجذر التربيعي لـ 144 مضروباً في 3؟'
+    },
+    answer: ['36', '٣٦'],
+    explanation: {
+      so: '√144 = 12. Kadib 12 × 3 = 36.',
+      en: '√144 = 12. Then 12 × 3 = 36.',
+      ar: 'الجذر التربيعي لـ 144 هو 12. ثم 12 × 3 = 36.'
+    },
+    points: 40,
+    timeLimit: 40
   }
 ];
 

@@ -71,16 +71,26 @@ export const AuthProvider = ({ children }) => {
           const referralCode = localStorage.getItem('referrer_code');
           if (referralCode) {
             try {
-              const { error: rpcError } = await supabase.rpc('increment_referral', {
-                referrer_code_param: referralCode
-              });
-              if (rpcError) {
-                console.error('Error rewarding referrer:', rpcError);
-              } else {
-                console.log('Successfully rewarded referrer:', referralCode);
+              // 1. Find the referrer user
+              const { data: referrerUser, error: refError } = await supabase
+                .from('users')
+                .select('*')
+                .eq('referral_code', referralCode)
+                .single();
+              
+              if (referrerUser && !refError) {
+                // 2. Award 5 points and increment referrals count
+                await supabase
+                  .from('users')
+                  .update({ 
+                    points: (referrerUser.points || 0) + 5,
+                    referrals: (referrerUser.referrals || 0) + 1 
+                  })
+                  .eq('uid', referrerUser.uid);
+                console.log('Successfully rewarded referrer 5 points:', referralCode);
               }
-            } catch (rpcErr) {
-              console.error('Exception rewarding referrer:', rpcErr);
+            } catch (err) {
+              console.error('Exception rewarding referrer:', err);
             } finally {
               localStorage.removeItem('referrer_code');
             }
